@@ -1,0 +1,16 @@
+# macOS and editor noise
+.DS_Store
+*/.DS_Store
+
+# Local launcher/server runtime files
+.living-screenshots-server.log
+.living-screenshots-server.pid
+
+# Temporary exports and scratch files
+exports/
+tmp/
+*.tmp
+
+# Private screenshot layer assets. Replace with generic/public-safe SVGs before publishing.
+assets/v2/*.svg
+assets/New Folder With Items/*.svg

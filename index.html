@@ -1,0 +1,1987 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Living screenshots</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --ink: #181715;
+      --muted: #6c6861;
+      --line: #d7dce0;
+      --panel: #ffffff;
+      --panel-strong: #ffffff;
+      --accent: #2d7f86;
+      --accent-2: #b06136;
+      --stage: #f7f8f9;
+      --shadow: rgba(29, 24, 18, 0.2);
+      --focus: rgba(45, 127, 134, 0.18);
+      --scene-perspective: 1670px;
+      --scene-rotate-x: -9deg;
+      --scene-rotate-y: -13deg;
+      --scene-rotate-z: 0deg;
+      --scene-skew-x: 0deg;
+      --scene-skew-y: 0deg;
+      --scene-scale: 0.65;
+      --anim-angle: 9.9deg;
+      --anim-speed: 7500ms;
+      --anim-ease: ease-in-out;
+      --layer-depth: 2.5;
+      --canvas-bg: rgb(255, 255, 255);
+      --grid-line: rgba(30, 38, 45, 0.075);
+      --laptop-x: 0px;
+      --laptop-y: 0px;
+      --laptop-scale: 1;
+      --laptop-opacity: 1;
+      --display-mirror: 1;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 420px;
+      height: 100vh;
+      min-height: 0;
+      transition: grid-template-columns 220ms ease;
+    }
+
+    .app.panel-collapsed {
+      grid-template-columns: minmax(0, 1fr) 0;
+    }
+
+    .workspace {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 0;
+      padding: 22px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 44px;
+      margin-bottom: 12px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--accent);
+      box-shadow: 0 10px 30px rgba(24, 23, 21, 0.05);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .subtle {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .icon-button {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-strong);
+      color: var(--ink);
+      cursor: pointer;
+      transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .icon-button:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(24, 23, 21, 0.08);
+    }
+
+    .stage-shell {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background-color: var(--canvas-bg);
+      background-image:
+        linear-gradient(90deg, rgba(30, 38, 45, 0.075) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(30, 38, 45, 0.075) 1px, transparent 1px);
+      background-image:
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(0deg, var(--grid-line) 1px, transparent 1px);
+      background-size: 32px 32px, 32px 32px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+    }
+
+    .stage-shell.grid-off {
+      background-image: none;
+    }
+
+    .stage {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 6vmin;
+      perspective: var(--scene-perspective);
+      perspective-origin: 50% 48%;
+    }
+
+    .laptop-reference {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 0;
+      width: min(88%, 1060px);
+      height: auto;
+      opacity: var(--laptop-opacity);
+      transform:
+        translate(-50%, -50%)
+        translate(var(--laptop-x), var(--laptop-y))
+        scale(calc(var(--laptop-scale) * var(--display-mirror)), var(--laptop-scale));
+      transform-origin: center center;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .scene-frame {
+      width: min(100%, 980px);
+      aspect-ratio: 1920 / 1037;
+      transform-style: preserve-3d;
+      position: relative;
+      z-index: 1;
+      transform:
+        scale(var(--scene-scale))
+        rotateZ(var(--scene-rotate-z))
+        rotateX(var(--scene-rotate-x))
+        rotateY(var(--scene-rotate-y))
+        skew(var(--scene-skew-x), var(--scene-skew-y));
+      transition: transform 180ms ease;
+    }
+
+    .scene-frame.animating.axis-x {
+      animation: livingPivotX var(--anim-speed) var(--anim-ease) infinite alternate;
+    }
+
+    .scene-frame.animating.axis-y {
+      animation: livingPivotY var(--anim-speed) var(--anim-ease) infinite alternate;
+    }
+
+    .scene-frame.animating.axis-z {
+      animation: livingPivotZ var(--anim-speed) var(--anim-ease) infinite alternate;
+    }
+
+    .scene-frame.animating.paused {
+      animation-play-state: paused;
+    }
+
+    @keyframes livingPivotX {
+      from {
+        transform:
+          scale(var(--scene-scale))
+          rotateZ(var(--scene-rotate-z))
+          rotateX(calc(var(--scene-rotate-x) - var(--anim-angle)))
+          rotateY(var(--scene-rotate-y))
+          skew(var(--scene-skew-x), var(--scene-skew-y));
+      }
+      to {
+        transform:
+          scale(var(--scene-scale))
+          rotateZ(var(--scene-rotate-z))
+          rotateX(calc(var(--scene-rotate-x) + var(--anim-angle)))
+          rotateY(var(--scene-rotate-y))
+          skew(var(--scene-skew-x), var(--scene-skew-y));
+      }
+    }
+
+    @keyframes livingPivotY {
+      from {
+        transform:
+          scale(var(--scene-scale))
+          rotateZ(var(--scene-rotate-z))
+          rotateX(var(--scene-rotate-x))
+          rotateY(calc(var(--scene-rotate-y) - var(--anim-angle)))
+          skew(var(--scene-skew-x), var(--scene-skew-y));
+      }
+      to {
+        transform:
+          scale(var(--scene-scale))
+          rotateZ(var(--scene-rotate-z))
+          rotateX(var(--scene-rotate-x))
+          rotateY(calc(var(--scene-rotate-y) + var(--anim-angle)))
+          skew(var(--scene-skew-x), var(--scene-skew-y));
+      }
+    }
+
+    @keyframes livingPivotZ {
+      from {
+        transform:
+          scale(var(--scene-scale))
+          rotateZ(calc(var(--scene-rotate-z) - var(--anim-angle)))
+          rotateX(var(--scene-rotate-x))
+          rotateY(var(--scene-rotate-y))
+          skew(var(--scene-skew-x), var(--scene-skew-y));
+      }
+      to {
+        transform:
+          scale(var(--scene-scale))
+          rotateZ(calc(var(--scene-rotate-z) + var(--anim-angle)))
+          rotateX(var(--scene-rotate-x))
+          rotateY(var(--scene-rotate-y))
+          skew(var(--scene-skew-x), var(--scene-skew-y));
+      }
+    }
+
+    .layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform-style: preserve-3d;
+      transform:
+        translate3d(var(--x), var(--y), calc(var(--z) * var(--layer-depth)))
+        rotateX(var(--rx))
+        rotateY(var(--ry))
+        rotateZ(var(--rz))
+        skew(var(--skx), var(--sky))
+        scale(var(--scale));
+      opacity: var(--opacity);
+      filter: blur(var(--blur)) drop-shadow(0 var(--shadow-y) var(--shadow-blur) rgba(18, 17, 15, var(--shadow-alpha)));
+      backface-visibility: hidden;
+      transition: transform 160ms ease, opacity 160ms ease, filter 160ms ease;
+      pointer-events: none;
+    }
+
+    .canvas-controls {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      width: min(650px, calc(100% - 28px));
+      color: var(--canvas-control-ink, var(--ink));
+      text-shadow: 0 1px 2px var(--canvas-control-shadow, rgba(255, 255, 255, 0.8));
+    }
+
+    .canvas-control-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 28px;
+    }
+
+    .canvas-control-row .field-label {
+      color: currentColor;
+      font-weight: 650;
+    }
+
+    .canvas-control-row .switch {
+      justify-self: start;
+      color: currentColor;
+    }
+
+    .canvas-control-row input[type="range"] {
+      width: 150px;
+      min-width: 90px;
+    }
+
+    .canvas-control-row select {
+      width: 128px;
+      min-height: 28px;
+    }
+
+    .layer.guide {
+      outline: 1px solid rgba(45, 127, 134, 0.24);
+      outline-offset: 3px;
+    }
+
+    .panel {
+      height: 100vh;
+      min-height: 0;
+      overflow: auto;
+      border-left: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      transition: opacity 180ms ease, visibility 180ms ease;
+    }
+
+    .app.panel-collapsed .panel {
+      overflow: hidden;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .panel-inner {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+    }
+
+    .section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.68);
+      overflow: hidden;
+    }
+
+    .section > summary,
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 42px;
+      padding: 0 13px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .section > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .section-body {
+      display: grid;
+      gap: 12px;
+      padding: 0 13px 13px;
+    }
+
+    .control {
+      display: grid;
+      grid-template-columns: 104px minmax(0, 1fr) 64px;
+      align-items: center;
+      gap: 10px;
+      min-height: 30px;
+    }
+
+    .control label,
+    .field-label {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      min-height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel-strong);
+      color: var(--ink);
+      padding: 4px 7px;
+      font-size: 12px;
+    }
+
+    input:focus-visible,
+    select:focus-visible,
+    button:focus-visible,
+    textarea:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .switch-row,
+    .select-row {
+      display: grid;
+      grid-template-columns: 104px minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      min-height: 34px;
+    }
+
+    .switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--ink);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .switch input {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--accent);
+    }
+
+    .play-pause-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: fit-content;
+      min-width: 92px;
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-strong);
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .play-pause-button:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    }
+
+    .play-pause-button svg {
+      color: var(--accent);
+      flex: 0 0 auto;
+    }
+
+    .animation-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 15px;
+      height: 15px;
+      color: var(--accent);
+    }
+
+    .panel-toggle-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 18px;
+      height: 18px;
+    }
+
+    .layer-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--color);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color) 18%, transparent);
+    }
+
+    .mini-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .size-summary {
+      display: grid;
+      gap: 7px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafb;
+    }
+
+    .size-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 22px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .size-row strong {
+      color: var(--ink);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .size-detail {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .text-button {
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-strong);
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .text-button:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    }
+
+    .text-button.danger {
+      border-color: rgba(176, 70, 54, 0.34);
+      color: #9c3529;
+    }
+
+    .text-button.danger:hover {
+      border-color: #b04636;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: rgba(10, 12, 14, 0.34);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-backdrop.open {
+      display: grid;
+    }
+
+    .modal {
+      width: min(420px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-strong);
+      box-shadow: 0 24px 70px rgba(24, 23, 21, 0.22);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .modal-body {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 118px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #181715;
+      color: #f8f4ed;
+      padding: 10px;
+      font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .export-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 1040px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .app.panel-collapsed {
+        grid-template-columns: 1fr;
+      }
+
+      .workspace {
+        min-height: 72vh;
+      }
+
+      .panel {
+        height: auto;
+        min-height: auto;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .app.panel-collapsed .panel {
+        display: none;
+      }
+
+      .scene-frame {
+        width: min(100%, 980px);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .workspace {
+        padding: 14px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .top-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .control {
+        grid-template-columns: 86px minmax(0, 1fr) 58px;
+        gap: 8px;
+      }
+
+      .switch-row,
+      .select-row {
+        grid-template-columns: 86px minmax(0, 1fr);
+      }
+
+      .panel-inner {
+        padding: 14px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scene-frame.animating {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="workspace" aria-label="Living screenshot preview">
+      <header class="topbar">
+        <div class="title">
+          <div class="mark" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M4 8.5 12 4l8 4.5-8 4.5L4 8.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="m4 12 8 4.5L20 12M4 15.5 12 20l8-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1>Living screenshots</h1>
+            <p class="subtle">Lightweight CSS+SVG Animation Tool</p>
+          </div>
+        </div>
+        <div class="top-actions" aria-label="Preview actions">
+          <button class="icon-button" id="toggleGuides" title="Toggle layer guides" aria-label="Toggle layer guides">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button class="icon-button" id="openSettings" title="Settings" aria-label="Open settings">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M19.4 15a1.6 1.6 0 0 0 .32 1.76l.06.06a1.94 1.94 0 0 1-2.74 2.74l-.06-.06a1.6 1.6 0 0 0-1.76-.32 1.6 1.6 0 0 0-.97 1.47V21a1.95 1.95 0 0 1-3.9 0v-.1a1.6 1.6 0 0 0-1.05-1.48 1.6 1.6 0 0 0-1.76.32l-.06.06a1.94 1.94 0 0 1-2.74-2.74l.06-.06a1.6 1.6 0 0 0 .32-1.76 1.6 1.6 0 0 0-1.47-.97H3.5a1.95 1.95 0 0 1 0-3.9h.1a1.6 1.6 0 0 0 1.48-1.05 1.6 1.6 0 0 0-.32-1.76l-.06-.06a1.94 1.94 0 0 1 2.74-2.74l.06.06a1.6 1.6 0 0 0 1.76.32h.08a1.6 1.6 0 0 0 .97-1.47V3.5a1.95 1.95 0 0 1 3.9 0v.1a1.6 1.6 0 0 0 .97 1.47 1.6 1.6 0 0 0 1.76-.32l.06-.06a1.94 1.94 0 0 1 2.74 2.74l-.06.06a1.6 1.6 0 0 0-.32 1.76v.08a1.6 1.6 0 0 0 1.47.97h.17a1.95 1.95 0 0 1 0 3.9h-.1A1.6 1.6 0 0 0 19.4 15Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="icon-button" id="panelToggle" title="Collapse controls" aria-label="Collapse controls panel" aria-expanded="true">
+            <span class="panel-toggle-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="stage-shell">
+        <div class="canvas-controls" aria-label="Canvas controls">
+          <div class="canvas-control-row">
+            <span class="field-label">Grid</span>
+            <label class="switch">
+              <input type="checkbox" id="canvasGrid" checked>
+              <span>visible</span>
+            </label>
+          </div>
+          <div class="canvas-control-row">
+            <label class="field-label" for="canvasBg">Background</label>
+            <input type="range" id="canvasBg" min="0" max="100" step="1" value="0" aria-label="Canvas background from white to black">
+          </div>
+          <div class="canvas-control-row">
+            <label class="field-label" for="displayVariant">Display</label>
+            <select id="displayVariant" aria-label="Display image">
+              <option value="dark">Laptop Dark</option>
+              <option value="white">Laptop Light</option>
+              <option value="monitor">Monitor</option>
+            </select>
+            <label class="switch mirror-display">
+              <input type="checkbox" id="mirrorDisplay">
+              <span>Mirror Display</span>
+            </label>
+          </div>
+        </div>
+        <div class="stage">
+          <img class="laptop-reference" id="laptopReference" src="assets/modern-open-laptop-reversed-transparent-with-background.png" alt="">
+          <div class="scene-frame animating axis-y" id="scene">
+            <img class="layer" data-layer="background" src="assets/v2/Background.svg" alt="">
+            <img class="layer" data-layer="middleground" src="assets/v2/Middle Ground.svg" alt="">
+            <img class="layer" data-layer="middleForeground" src="assets/v2/Middle foreround.svg" alt="">
+            <img class="layer" data-layer="foreground" src="assets/v2/Foreround.svg" alt="">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel" aria-label="Arrangement controls">
+      <div class="panel-inner">
+        <section class="section">
+          <div class="section-heading">Assets</div>
+          <div class="section-body">
+            <div class="select-row">
+              <label class="field-label" for="assetSetSelect">Folder</label>
+              <select id="assetSetSelect"></select>
+            </div>
+            <div class="mini-actions">
+              <button class="text-button" id="chooseAssetsFolder" type="button">Choose Folder</button>
+              <button class="text-button" id="rescanAssetsFolder" type="button">Rescan</button>
+            </div>
+            <p class="export-note" id="assetStatus">Using built-in asset folders.</p>
+          </div>
+        </section>
+
+        <details class="section" open>
+          <summary>Scene Orientation</summary>
+          <div class="section-body" id="sceneControls"></div>
+        </details>
+
+        <details class="section" open>
+          <summary>Display Background</summary>
+          <div class="section-body">
+            <div class="switch-row">
+              <span class="field-label">Visible</span>
+              <label class="switch">
+                <input type="checkbox" id="laptopVisible" checked>
+                <span>shown</span>
+              </label>
+            </div>
+            <div id="laptopControls"></div>
+          </div>
+        </details>
+
+        <details class="section" open>
+          <summary>Living Motion</summary>
+          <div class="section-body">
+            <div class="switch-row">
+              <span class="field-label">Animation</span>
+              <button class="play-pause-button" id="animationToggle" type="button" aria-pressed="true">
+                <span class="animation-icon" aria-hidden="true"></span>
+                <span class="animation-label">Pause</span>
+              </button>
+            </div>
+            <div class="select-row">
+              <label class="field-label" for="animationAxis">Axis</label>
+              <select id="animationAxis">
+                <option value="x">X pivot</option>
+                <option value="y" selected>Y pivot</option>
+                <option value="z">Z pivot</option>
+              </select>
+            </div>
+            <div id="animationControls"></div>
+          </div>
+        </details>
+
+        <div id="layerControls"></div>
+
+        <section class="section">
+          <div class="section-heading">Export</div>
+          <div class="section-body">
+            <div class="mini-actions">
+              <button class="text-button" id="copyCss" type="button">Copy CSS Vars</button>
+              <button class="text-button" id="copyJson" type="button">Copy JSON</button>
+            </div>
+            <button class="text-button" id="exportPng" type="button">Export PNG</button>
+            <div class="size-summary" aria-label="Animation size estimate">
+              <div class="size-row"><span>Images</span><strong id="imageSize">Calculating</strong></div>
+              <p class="size-detail" id="imageSizeDetail">Reading SVG layer sizes...</p>
+              <div class="size-row"><span>CSS+JS</span><strong id="codeSize">Calculating</strong></div>
+              <div class="size-row"><span>Total</span><strong id="totalSize">Calculating</strong></div>
+            </div>
+            <textarea id="exportOutput" spellcheck="false" aria-label="Current settings export"></textarea>
+            <p class="export-note">The exported values are enough to recreate the hero pose and first animation pass in a production page.</p>
+          </div>
+        </section>
+      </div>
+    </aside>
+  </main>
+
+  <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <section class="modal">
+      <header class="modal-header">
+        <h2 id="settingsTitle">Global Settings</h2>
+        <button class="icon-button" id="closeSettings" title="Close settings" aria-label="Close settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </header>
+      <div class="modal-body">
+        <p class="export-note">Saved settings are stored in this browser for the arrangement tool.</p>
+        <button class="text-button danger" id="resetApp" type="button">Reset App</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'living-screenshots-state-v2';
+    const app = document.querySelector('.app');
+    const root = document.documentElement;
+    const scene = document.getElementById('scene');
+    const stageShell = document.querySelector('.stage-shell');
+    const laptopReference = document.getElementById('laptopReference');
+    const exportOutput = document.getElementById('exportOutput');
+    const layerOrder = ['background', 'middleground', 'middleForeground', 'foreground'];
+    const builtInAssetSets = [
+      {
+        name: 'v1',
+        source: 'built-in',
+        layers: {
+          background: { name: 'Background.svg', url: 'assets/v1/Background.svg' },
+          middleground: { name: 'Middle Ground.svg', url: 'assets/v1/Middle Ground.svg' },
+          middleForeground: { name: 'Middle foreround.svg', url: 'assets/v1/Middle foreround.svg' },
+          foreground: { name: 'Foreround.svg', url: 'assets/v1/Foreround.svg' }
+        }
+      },
+      {
+        name: 'v2',
+        source: 'built-in',
+        layers: {
+          background: { name: 'Background.svg', url: 'assets/v2/Background.svg' },
+          middleground: { name: 'Middle Ground.svg', url: 'assets/v2/Middle Ground.svg' },
+          middleForeground: { name: 'Middle foreround.svg', url: 'assets/v2/Middle foreround.svg' },
+          foreground: { name: 'Foreround.svg', url: 'assets/v2/Foreround.svg' }
+        }
+      }
+    ];
+    let assetSets = structuredClone(builtInAssetSets);
+    let serverAssetSets = [];
+    let localAssetSets = [];
+    let localAssetUrls = [];
+    let assetsDirectoryHandle = null;
+    const laptopSources = {
+      dark: 'assets/modern-open-laptop-reversed-transparent-with-background.png',
+      white: 'assets/modern-open-laptop-reversed-transparent-with-background-white.png',
+      monitor: 'assets/monitor-hero.png'
+    };
+
+    const canvasDefaults = {
+      grid: true,
+      background: 0,
+      guides: false,
+      panelCollapsed: false,
+      assetSet: 'v2',
+      laptopVariant: 'dark',
+      displayMirrored: false,
+      laptop: {
+        visible: true,
+        x: 101,
+        y: 53,
+        scale: 1.02,
+        opacity: 100
+      }
+    };
+
+    const sceneDefaults = {
+      perspective: 2540,
+      rotateX: 10,
+      rotateY: -37,
+      rotateZ: 7,
+      skewX: 0,
+      skewY: 0,
+      scale: 0.62
+    };
+
+    const animationDefaults = {
+      enabled: true,
+      axis: 'y',
+      angle: 5.2,
+      speed: 9000,
+      depth: 1.98
+    };
+
+    const layerDefaults = {
+      background: {
+        title: 'Background',
+        file: 'Background.svg',
+        color: '#2d7f86',
+        x: 0,
+        y: -29,
+        z: -85,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0,
+        skewX: 0,
+        skewY: 0,
+        scale: 1,
+        opacity: 100,
+        blur: 0,
+        shadow: 18
+      },
+      middleground: {
+        title: 'Middle Ground',
+        file: 'Middle Ground.svg',
+        color: '#6d8e49',
+        x: 103,
+        y: 67,
+        z: 51,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0,
+        skewX: 0,
+        skewY: 0,
+        scale: 1,
+        opacity: 100,
+        blur: 0,
+        shadow: 20
+      },
+      middleForeground: {
+        title: 'Middle Foreground',
+        file: 'Middle foreround.svg',
+        color: '#b06136',
+        x: 0,
+        y: 83,
+        z: 121,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0,
+        skewX: 0,
+        skewY: 0,
+        scale: 1,
+        opacity: 100,
+        blur: 0,
+        shadow: 22
+      },
+      foreground: {
+        title: 'Foreground',
+        file: 'Foreround.svg',
+        color: '#9c4f74',
+        x: 163,
+        y: 130,
+        z: 182,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0,
+        skewX: 0,
+        skewY: 0,
+        scale: 1,
+        opacity: 100,
+        blur: 0,
+        shadow: 24
+      }
+    };
+
+    function createDefaultState() {
+      return {
+        canvas: structuredClone(canvasDefaults),
+        scene: structuredClone(sceneDefaults),
+        animation: structuredClone(animationDefaults),
+        layers: structuredClone(layerDefaults)
+      };
+    }
+
+    function mergeSavedState(defaults, saved) {
+      if (!saved || typeof saved !== 'object') return defaults;
+      for (const [key, value] of Object.entries(saved)) {
+        if (!(key in defaults)) continue;
+        if (
+          value &&
+          typeof value === 'object' &&
+          !Array.isArray(value) &&
+          defaults[key] &&
+          typeof defaults[key] === 'object' &&
+          !Array.isArray(defaults[key])
+        ) {
+          mergeSavedState(defaults[key], value);
+        } else {
+          defaults[key] = value;
+        }
+      }
+      return defaults;
+    }
+
+    function loadState() {
+      try {
+        return mergeSavedState(createDefaultState(), JSON.parse(localStorage.getItem(STORAGE_KEY)));
+      } catch {
+        return createDefaultState();
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {
+        // Storage can be unavailable in private or embedded contexts.
+      }
+    }
+
+    let state = loadState();
+
+    function normalizedName(name) {
+      return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function sortSvgFiles(files) {
+      return [...files].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+    }
+
+    function mapFilesToLayers(files) {
+      const svgFiles = sortSvgFiles(files.filter((file) => file.name.toLowerCase().endsWith('.svg')));
+      const used = new Set();
+      const mapped = {};
+
+      const findFile = (tests) => {
+        const match = svgFiles.find((file) => {
+          if (used.has(file.name)) return false;
+          const normalized = normalizedName(file.name);
+          return tests.some((test) => normalized.includes(test));
+        });
+        if (match) used.add(match.name);
+        return match;
+      };
+
+      mapped.background = findFile(['background', 'bg']) || null;
+      mapped.middleForeground = findFile(['middleforeground', 'middleforeround', 'midforeground']) || null;
+      mapped.middleground = findFile(['middleground', 'middle']) || null;
+      mapped.foreground = findFile(['foreground', 'foreround']) || null;
+
+      for (const key of layerOrder) {
+        if (mapped[key]) continue;
+        const fallback = svgFiles.find((file) => !used.has(file.name));
+        if (fallback) {
+          mapped[key] = fallback;
+          used.add(fallback.name);
+        }
+      }
+
+      return layerOrder.every((key) => mapped[key]) ? mapped : null;
+    }
+
+    function revokeLocalAssetUrls() {
+      localAssetUrls.forEach((url) => URL.revokeObjectURL(url));
+      localAssetUrls = [];
+    }
+
+    function rebuildAssetSets() {
+      const baseSets = serverAssetSets.length ? serverAssetSets : structuredClone(builtInAssetSets);
+      assetSets = [...baseSets, ...localAssetSets];
+      renderAssetOptions();
+    }
+
+    function renderAssetOptions() {
+      const select = document.getElementById('assetSetSelect');
+      select.replaceChildren(...assetSets.map((set) => {
+        const option = document.createElement('option');
+        option.value = set.name;
+        option.textContent = set.source === 'built-in' ? set.name : `${set.name} (local)`;
+        return option;
+      }));
+
+      if (!assetSets.some((set) => set.name === state.canvas.assetSet)) {
+        state.canvas.assetSet = assetSets.some((set) => set.name === canvasDefaults.assetSet)
+          ? canvasDefaults.assetSet
+          : assetSets[0]?.name || '';
+      }
+      select.value = state.canvas.assetSet;
+    }
+
+    function applyAssetSet(name, { persist = true } = {}) {
+      const assetSet = assetSets.find((set) => set.name === name) || assetSets[0];
+      if (!assetSet) return;
+
+      state.canvas.assetSet = assetSet.name;
+      for (const key of layerOrder) {
+        const layer = document.querySelector(`[data-layer="${key}"]`);
+        if (layer && assetSet.layers[key]) {
+          layer.src = assetSet.layers[key].url;
+          layer.dataset.filename = assetSet.layers[key].name;
+        }
+      }
+      document.getElementById('assetSetSelect').value = assetSet.name;
+      document.getElementById('assetStatus').textContent = assetSet.source === 'built-in'
+        ? `Using built-in asset folder "${assetSet.name}".`
+        : `Using local asset folder "${assetSet.name}".`;
+      measurePayloadSizes();
+      if (persist) saveState();
+    }
+
+    function linksFromDirectoryHtml(html, baseUrl) {
+      const documentFragment = new DOMParser().parseFromString(html, 'text/html');
+      return [...documentFragment.querySelectorAll('a[href]')]
+        .map((anchor) => new URL(anchor.getAttribute('href'), baseUrl))
+        .filter((url) => url.origin === window.location.origin);
+    }
+
+    async function serverSvgFilesFromDirectory(directoryUrl) {
+      const response = await fetch(directoryUrl.href, { cache: 'no-store' });
+      if (!response.ok) return [];
+      const links = linksFromDirectoryHtml(await response.text(), directoryUrl.href);
+      return links
+        .filter((url) => url.pathname.toLowerCase().endsWith('.svg'))
+        .map((url) => ({
+          name: decodeURIComponent(url.pathname.split('/').pop()),
+          url: url.href
+        }));
+    }
+
+    async function scanServerAssetFolders() {
+      try {
+        const assetsUrl = new URL('assets/', window.location.href);
+        const response = await fetch(assetsUrl.href, { cache: 'no-store' });
+        if (!response.ok) return false;
+
+        const links = linksFromDirectoryHtml(await response.text(), assetsUrl.href);
+        const folderUrls = links.filter((url) => {
+          const relative = url.pathname.slice(assetsUrl.pathname.length);
+          return relative && relative.endsWith('/') && !relative.startsWith('../');
+        });
+        const discovered = [];
+
+        for (const folderUrl of folderUrls) {
+          const mapped = mapFilesToLayers(await serverSvgFilesFromDirectory(folderUrl));
+          if (!mapped) continue;
+          const name = decodeURIComponent(folderUrl.pathname.replace(/\/$/, '').split('/').pop());
+          discovered.push({ name, source: 'server', layers: mapped });
+        }
+
+        if (!discovered.length) return false;
+        serverAssetSets = discovered.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+        rebuildAssetSets();
+        applyAssetSet(state.canvas.assetSet, { persist: false });
+        document.getElementById('assetStatus').textContent = `Found ${serverAssetSets.length} server asset folder${serverAssetSets.length === 1 ? '' : 's'}.`;
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    async function filesFromDirectoryHandle(directoryHandle) {
+      const files = [];
+      for await (const [name, handle] of directoryHandle.entries()) {
+        if (handle.kind !== 'file' || !name.toLowerCase().endsWith('.svg')) continue;
+        const file = await handle.getFile();
+        const url = URL.createObjectURL(file);
+        localAssetUrls.push(url);
+        files.push({ name, url });
+      }
+      return files;
+    }
+
+    async function scanAssetsDirectory(directoryHandle) {
+      revokeLocalAssetUrls();
+      const localSets = [];
+      const rootFiles = [];
+
+      for await (const [name, handle] of directoryHandle.entries()) {
+        if (handle.kind === 'directory') {
+          const mapped = mapFilesToLayers(await filesFromDirectoryHandle(handle));
+          if (mapped) {
+            localSets.push({ name, source: 'local', layers: mapped });
+          }
+        } else if (handle.kind === 'file' && name.toLowerCase().endsWith('.svg')) {
+          const file = await handle.getFile();
+          const url = URL.createObjectURL(file);
+          localAssetUrls.push(url);
+          rootFiles.push({ name, url });
+        }
+      }
+
+      const rootMapped = mapFilesToLayers(rootFiles);
+      if (rootMapped) {
+        localSets.unshift({ name: directoryHandle.name || 'Selected folder', source: 'local', layers: rootMapped });
+      }
+
+      localAssetSets = localSets;
+      rebuildAssetSets();
+      if (localSets.length) {
+        document.getElementById('assetStatus').textContent = `Found ${localSets.length} local asset folder${localSets.length === 1 ? '' : 's'}.`;
+      } else {
+        document.getElementById('assetStatus').textContent = 'No complete SVG layer folders found. Each folder needs four SVGs.';
+      }
+      applyAssetSet(state.canvas.assetSet, { persist: true });
+    }
+
+    async function chooseAssetsDirectory() {
+      if (!('showDirectoryPicker' in window)) {
+        document.getElementById('assetStatus').textContent = 'Folder picking is not available in this browser. Use the local server fallback or Chrome/Edge.';
+        return;
+      }
+
+      assetsDirectoryHandle = await window.showDirectoryPicker({ mode: 'read' });
+      await scanAssetsDirectory(assetsDirectoryHandle);
+    }
+
+    const controlSpecs = {
+      scene: [
+        ['perspective', 'Perspective', 500, 2600, 10, 'px'],
+        ['rotateX', 'Rotate X', -80, 80, 1, 'deg'],
+        ['rotateY', 'Rotate Y', -80, 80, 1, 'deg'],
+        ['rotateZ', 'Rotate Z', -40, 40, 1, 'deg'],
+        ['skewX', 'Skew X', -30, 30, 1, 'deg'],
+        ['skewY', 'Skew Y', -30, 30, 1, 'deg'],
+        ['scale', 'Scale', 0.35, 1.35, 0.01, '']
+      ],
+      animation: [
+        ['angle', 'Intensity', 0, 14, 0.1, 'deg'],
+        ['speed', 'Speed', 3000, 20000, 250, 'ms'],
+        ['depth', 'Z Depth', 0, 2.5, 0.01, '']
+      ],
+      laptop: [
+        ['x', 'X', -600, 600, 1, 'px'],
+        ['y', 'Y', -420, 420, 1, 'px'],
+        ['scale', 'Scale', 0.2, 2.5, 0.01, ''],
+        ['opacity', 'Opacity', 0, 100, 1, '%']
+      ],
+      layer: [
+        ['x', 'X', -240, 240, 1, 'px'],
+        ['y', 'Y', -180, 180, 1, 'px'],
+        ['z', 'Depth', -120, 260, 1, 'px'],
+        ['rotateX', 'Rotate X', -45, 45, 1, 'deg'],
+        ['rotateY', 'Rotate Y', -45, 45, 1, 'deg'],
+        ['rotateZ', 'Rotate Z', -45, 45, 1, 'deg'],
+        ['skewX', 'Skew X', -30, 30, 1, 'deg'],
+        ['skewY', 'Skew Y', -30, 30, 1, 'deg'],
+        ['scale', 'Scale', 0.5, 1.5, 0.01, ''],
+        ['opacity', 'Opacity', 0, 100, 1, '%'],
+        ['blur', 'Blur', 0, 8, 0.1, 'px'],
+        ['shadow', 'Shadow', 0, 60, 1, '']
+      ]
+    };
+
+    function cssNumber(value, unit) {
+      if (unit === '') return Number(value).toFixed(2).replace(/\.?0+$/, '');
+      return `${value}${unit}`;
+    }
+
+    function makeControl(group, key, label, min, max, step, unit, path) {
+      const row = document.createElement('div');
+      row.className = 'control';
+
+      const labelEl = document.createElement('label');
+      const id = `${group}-${path ? `${path}-` : ''}${key}`;
+      labelEl.htmlFor = id;
+      labelEl.textContent = label;
+
+      const range = document.createElement('input');
+      range.type = 'range';
+      range.id = id;
+      range.min = min;
+      range.max = max;
+      range.step = step;
+      range.dataset.group = group;
+      range.dataset.key = key;
+      if (path) range.dataset.path = path;
+
+      const number = document.createElement('input');
+      number.type = 'number';
+      number.id = `${id}-value`;
+      number.min = min;
+      number.max = max;
+      number.step = step;
+      number.setAttribute('aria-label', `${label} value`);
+      number.dataset.group = group;
+      number.dataset.key = key;
+      if (path) number.dataset.path = path;
+
+      const getTarget = () => path ? state[group][path] : state[group];
+      range.value = getTarget()[key];
+      number.value = getTarget()[key];
+
+      const update = (rawValue) => {
+        const value = Number(rawValue);
+        getTarget()[key] = value;
+        range.value = value;
+        number.value = value;
+        applyState();
+      };
+
+      range.addEventListener('input', () => update(range.value));
+      number.addEventListener('input', () => update(number.value));
+
+      row.append(labelEl, range, number);
+      return row;
+    }
+
+    function renderControls() {
+      const sceneControls = document.getElementById('sceneControls');
+      sceneControls.replaceChildren(...controlSpecs.scene
+        .filter(([key]) => !key.toLowerCase().startsWith('skew'))
+        .map((spec) => makeControl('scene', ...spec)));
+
+      const animationControls = document.getElementById('animationControls');
+      animationControls.replaceChildren(...controlSpecs.animation.map((spec) => makeControl('animation', ...spec)));
+
+      const laptopControls = document.getElementById('laptopControls');
+      laptopControls.replaceChildren(...controlSpecs.laptop.map((spec) => makeControl('canvas', ...spec, 'laptop')));
+
+      const layerControls = document.getElementById('layerControls');
+      const layerSections = Object.entries(state.layers).map(([key, layer]) => {
+        const details = document.createElement('details');
+        details.className = 'section';
+        details.open = key !== 'background';
+
+        const summary = document.createElement('summary');
+        const header = document.createElement('span');
+        header.className = 'layer-header';
+        header.innerHTML = `<span class="swatch" style="--color: ${layer.color}"></span><span>${layer.title}</span>`;
+        const file = document.createElement('span');
+        file.className = 'subtle';
+        file.textContent = layer.file;
+        summary.append(header, file);
+
+        const body = document.createElement('div');
+        body.className = 'section-body';
+        body.append(...controlSpecs.layer
+          .filter(([controlKey]) => !controlKey.toLowerCase().startsWith('skew'))
+          .map((spec) => makeControl('layers', ...spec, key)));
+        details.append(summary, body);
+        return details;
+      });
+      layerControls.replaceChildren(...layerSections);
+    }
+
+    function applyState({ persist = true } = {}) {
+      const shade = Math.round(255 - (state.canvas.background / 100) * 255);
+      const canvasColor = `rgb(${shade}, ${shade}, ${shade})`;
+      root.style.setProperty('--canvas-bg', canvasColor);
+      root.style.setProperty(
+        '--grid-line',
+        state.canvas.background > 50 ? 'rgba(255, 255, 255, 0.14)' : 'rgba(30, 38, 45, 0.075)'
+      );
+      root.style.setProperty('--canvas-control-ink', state.canvas.background > 50 ? '#ffffff' : '#181715');
+      root.style.setProperty(
+        '--canvas-control-shadow',
+        state.canvas.background > 50 ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.8)'
+      );
+      stageShell.classList.toggle('grid-off', !state.canvas.grid);
+      app.classList.toggle('panel-collapsed', state.canvas.panelCollapsed);
+      syncPanelToggle();
+      document.querySelectorAll('.layer').forEach((layer) => layer.classList.toggle('guide', state.canvas.guides));
+      const laptopSource = laptopSources[state.canvas.laptopVariant] || laptopSources.dark;
+      if (!laptopReference.getAttribute('src').endsWith(laptopSource)) {
+        laptopReference.src = laptopSource;
+      }
+      laptopReference.hidden = !state.canvas.laptop.visible;
+      root.style.setProperty('--laptop-x', `${state.canvas.laptop.x}px`);
+      root.style.setProperty('--laptop-y', `${state.canvas.laptop.y}px`);
+      root.style.setProperty('--laptop-scale', state.canvas.laptop.scale);
+      root.style.setProperty('--laptop-opacity', state.canvas.laptop.opacity / 100);
+      root.style.setProperty('--display-mirror', state.canvas.displayMirrored ? -1 : 1);
+
+      root.style.setProperty('--scene-perspective', `${state.scene.perspective}px`);
+      root.style.setProperty('--scene-rotate-x', `${state.scene.rotateX}deg`);
+      root.style.setProperty('--scene-rotate-y', `${state.scene.rotateY}deg`);
+      root.style.setProperty('--scene-rotate-z', `${state.scene.rotateZ}deg`);
+      root.style.setProperty('--scene-skew-x', `${state.scene.skewX}deg`);
+      root.style.setProperty('--scene-skew-y', `${state.scene.skewY}deg`);
+      root.style.setProperty('--scene-scale', state.scene.scale);
+
+      root.style.setProperty('--anim-angle', `${state.animation.angle}deg`);
+      root.style.setProperty('--anim-speed', `${state.animation.speed}ms`);
+      root.style.setProperty('--layer-depth', state.animation.depth);
+      scene.classList.add('animating');
+      scene.classList.toggle('paused', !state.animation.enabled);
+      scene.classList.toggle('axis-x', state.animation.axis === 'x');
+      scene.classList.toggle('axis-y', state.animation.axis === 'y');
+      scene.classList.toggle('axis-z', state.animation.axis === 'z');
+      syncAnimationButton();
+
+      for (const [key, layer] of Object.entries(state.layers)) {
+        const el = document.querySelector(`[data-layer="${key}"]`);
+        el.style.setProperty('--x', `${layer.x}px`);
+        el.style.setProperty('--y', `${layer.y}px`);
+        el.style.setProperty('--z', `${layer.z}px`);
+        el.style.setProperty('--rx', `${layer.rotateX}deg`);
+        el.style.setProperty('--ry', `${layer.rotateY}deg`);
+        el.style.setProperty('--rz', `${layer.rotateZ}deg`);
+        el.style.setProperty('--skx', `${layer.skewX}deg`);
+        el.style.setProperty('--sky', `${layer.skewY}deg`);
+        el.style.setProperty('--scale', layer.scale);
+        el.style.setProperty('--opacity', layer.opacity / 100);
+        el.style.setProperty('--blur', `${layer.blur}px`);
+        el.style.setProperty('--shadow-y', `${Math.max(0, Math.round(layer.shadow / 2))}px`);
+        el.style.setProperty('--shadow-blur', `${layer.shadow}px`);
+        el.style.setProperty('--shadow-alpha', Math.min(0.34, layer.shadow / 140));
+      }
+
+      updateExport();
+      if (persist) saveState();
+    }
+
+    function syncAnimationButton() {
+      const button = document.getElementById('animationToggle');
+      const icon = button.querySelector('.animation-icon');
+      const label = button.querySelector('.animation-label');
+      button.setAttribute('aria-pressed', String(state.animation.enabled));
+      button.setAttribute('aria-label', state.animation.enabled ? 'Pause animation' : 'Play animation');
+      icon.innerHTML = state.animation.enabled
+        ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>'
+        : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5-11-6.5Z" fill="currentColor"/></svg>';
+      label.textContent = state.animation.enabled ? 'Pause' : 'Play';
+    }
+
+    function syncPanelToggle() {
+      const button = document.getElementById('panelToggle');
+      const icon = button.querySelector('.panel-toggle-icon');
+      const isCollapsed = state.canvas.panelCollapsed;
+      button.setAttribute('aria-expanded', String(!isCollapsed));
+      button.setAttribute('aria-label', isCollapsed ? 'Expand controls panel' : 'Collapse controls panel');
+      button.title = isCollapsed ? 'Expand controls' : 'Collapse controls';
+      icon.innerHTML = isCollapsed
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M15 5v14M11 9l-3 3 3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M15 5v14M8 9l3 3-3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }
+
+    function updateExport() {
+      const sceneCss = [
+        `--canvas-bg: ${getComputedStyle(root).getPropertyValue('--canvas-bg').trim()};`,
+        `--grid-line: ${getComputedStyle(root).getPropertyValue('--grid-line').trim()};`,
+        `--scene-perspective: ${state.scene.perspective}px;`,
+        `--scene-rotate-x: ${state.scene.rotateX}deg;`,
+        `--scene-rotate-y: ${state.scene.rotateY}deg;`,
+        `--scene-rotate-z: ${state.scene.rotateZ}deg;`,
+        `--scene-skew-x: ${state.scene.skewX}deg;`,
+        `--scene-skew-y: ${state.scene.skewY}deg;`,
+        `--scene-scale: ${cssNumber(state.scene.scale, '')};`,
+        `--anim-angle: ${state.animation.angle}deg;`,
+        `--anim-speed: ${state.animation.speed}ms;`,
+        `--layer-depth: ${cssNumber(state.animation.depth, '')};`
+      ].join('\n');
+
+      const layerCss = Object.entries(state.layers).map(([key, layer]) => {
+        return [
+          `[data-layer="${key}"] {`,
+          `  --x: ${layer.x}px;`,
+          `  --y: ${layer.y}px;`,
+          `  --z: ${layer.z}px;`,
+          `  --rx: ${layer.rotateX}deg;`,
+          `  --ry: ${layer.rotateY}deg;`,
+          `  --rz: ${layer.rotateZ}deg;`,
+          `  --skx: ${layer.skewX}deg;`,
+          `  --sky: ${layer.skewY}deg;`,
+          `  --scale: ${cssNumber(layer.scale, '')};`,
+          `  --opacity: ${cssNumber(layer.opacity / 100, '')};`,
+          `  --blur: ${layer.blur}px;`,
+          `}`
+        ].join('\n');
+      }).join('\n\n');
+
+      exportOutput.value = `:root {\n${sceneCss.split('\n').map((line) => `  ${line}`).join('\n')}\n}\n\n${layerCss}`;
+    }
+
+    function formatBytes(bytes) {
+      if (!Number.isFinite(bytes)) return 'Unavailable';
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+    }
+
+    async function measurePayloadSizes() {
+      const imageSize = document.getElementById('imageSize');
+      const imageSizeDetail = document.getElementById('imageSizeDetail');
+      const codeSize = document.getElementById('codeSize');
+      const totalSize = document.getElementById('totalSize');
+      const encoder = new TextEncoder();
+      const cssBytes = encoder.encode(document.querySelector('style').textContent).length;
+      const jsBytes = [...document.scripts].reduce((total, script) => {
+        return total + encoder.encode(script.textContent || '').length;
+      }, 0);
+
+      const imageResults = await Promise.all([...document.querySelectorAll('.layer')].map(async (img) => {
+        try {
+          const response = await fetch(img.currentSrc || img.src);
+          const blob = await response.blob();
+          const name = decodeURIComponent(new URL(img.src).pathname.split('/').pop());
+          return { name, bytes: blob.size };
+        } catch {
+          return { name: img.dataset.layer, bytes: NaN };
+        }
+      }));
+
+      const imagesBytes = imageResults.reduce((total, item) => {
+        return total + (Number.isFinite(item.bytes) ? item.bytes : 0);
+      }, 0);
+      const codeBytes = cssBytes + jsBytes;
+
+      imageSize.textContent = formatBytes(imagesBytes);
+      imageSizeDetail.textContent = imageResults
+        .map((item) => `${item.name}: ${formatBytes(item.bytes)}`)
+        .join(' | ');
+      codeSize.textContent = `${formatBytes(codeBytes)} (${formatBytes(cssBytes)} CSS, ${formatBytes(jsBytes)} JS)`;
+      totalSize.textContent = formatBytes(imagesBytes + codeBytes);
+    }
+
+    function blobToDataUrl(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    async function imageToDataUrl(src) {
+      const response = await fetch(src);
+      if (!response.ok) throw new Error(`Could not load ${src}`);
+      return blobToDataUrl(await response.blob());
+    }
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.src = src;
+      });
+    }
+
+    function triangleTransform(source, dest) {
+      const [s0, s1, s2] = source;
+      const [d0, d1, d2] = dest;
+      const denominator = s0.x * (s1.y - s2.y) + s1.x * (s2.y - s0.y) + s2.x * (s0.y - s1.y);
+
+      return {
+        a: (d0.x * (s1.y - s2.y) + d1.x * (s2.y - s0.y) + d2.x * (s0.y - s1.y)) / denominator,
+        b: (d0.y * (s1.y - s2.y) + d1.y * (s2.y - s0.y) + d2.y * (s0.y - s1.y)) / denominator,
+        c: (d0.x * (s2.x - s1.x) + d1.x * (s0.x - s2.x) + d2.x * (s1.x - s0.x)) / denominator,
+        d: (d0.y * (s2.x - s1.x) + d1.y * (s0.x - s2.x) + d2.y * (s1.x - s0.x)) / denominator,
+        e: (d0.x * (s1.x * s2.y - s2.x * s1.y) + d1.x * (s2.x * s0.y - s0.x * s2.y) + d2.x * (s0.x * s1.y - s1.x * s0.y)) / denominator,
+        f: (d0.y * (s1.x * s2.y - s2.x * s1.y) + d1.y * (s2.x * s0.y - s0.x * s2.y) + d2.y * (s0.x * s1.y - s1.x * s0.y)) / denominator
+      };
+    }
+
+    function drawTriangle(context, image, source, dest, scale) {
+      const scaledDest = dest.map((point) => ({ x: point.x * scale, y: point.y * scale }));
+      const matrix = triangleTransform(source, scaledDest);
+
+      context.save();
+      context.beginPath();
+      context.moveTo(scaledDest[0].x, scaledDest[0].y);
+      context.lineTo(scaledDest[1].x, scaledDest[1].y);
+      context.lineTo(scaledDest[2].x, scaledDest[2].y);
+      context.closePath();
+      context.clip();
+      context.setTransform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f);
+      context.drawImage(image, 0, 0);
+      context.restore();
+    }
+
+    function parseTransformOrigin(style) {
+      const parts = style.transformOrigin.split(' ').map((value) => Number.parseFloat(value) || 0);
+      return { x: parts[0] || 0, y: parts[1] || 0, z: parts[2] || 0 };
+    }
+
+    function parseMatrix(transform) {
+      return transform && transform !== 'none' ? new DOMMatrix(transform) : new DOMMatrix();
+    }
+
+    function transformAroundOrigin(point, matrix, origin) {
+      const shifted = new DOMPoint(point.x - origin.x, point.y - origin.y, point.z - origin.z, 1);
+      const transformed = shifted.matrixTransform(matrix);
+      return {
+        x: transformed.x + origin.x,
+        y: transformed.y + origin.y,
+        z: transformed.z + origin.z
+      };
+    }
+
+    function createLayerProjector(layer, image, stage) {
+      const layerStyle = getComputedStyle(layer);
+      const sceneStyle = getComputedStyle(scene);
+      const stageStyle = getComputedStyle(stage);
+      const layerMatrix = parseMatrix(layerStyle.transform);
+      const sceneMatrix = parseMatrix(sceneStyle.transform);
+      const layerOrigin = parseTransformOrigin(layerStyle);
+      const sceneOrigin = parseTransformOrigin(sceneStyle);
+      const perspective = Number.parseFloat(stageStyle.perspective) || 0;
+      const perspectiveOrigin = stageStyle.perspectiveOrigin.split(' ').map((value) => Number.parseFloat(value) || 0);
+      const perspectiveX = perspectiveOrigin[0] || stage.clientWidth / 2;
+      const perspectiveY = perspectiveOrigin[1] || stage.clientHeight / 2;
+      const layerWidth = layer.offsetWidth || scene.offsetWidth;
+      const layerHeight = layer.offsetHeight || scene.offsetHeight;
+      const sceneLeft = scene.offsetLeft;
+      const sceneTop = scene.offsetTop;
+      const layerLeft = layer.offsetLeft;
+      const layerTop = layer.offsetTop;
+
+      return (sourceX, sourceY) => {
+        const local = {
+          x: (sourceX / image.naturalWidth) * layerWidth,
+          y: (sourceY / image.naturalHeight) * layerHeight,
+          z: 0
+        };
+        const inLayerParent = transformAroundOrigin(local, layerMatrix, layerOrigin);
+        const inScene = {
+          x: inLayerParent.x + layerLeft,
+          y: inLayerParent.y + layerTop,
+          z: inLayerParent.z
+        };
+        const inStageBeforeLayout = transformAroundOrigin(inScene, sceneMatrix, sceneOrigin);
+        const inStage = {
+          x: inStageBeforeLayout.x + sceneLeft,
+          y: inStageBeforeLayout.y + sceneTop,
+          z: inStageBeforeLayout.z
+        };
+
+        if (!perspective) return { x: inStage.x, y: inStage.y };
+
+        const perspectiveScale = perspective / (perspective - inStage.z);
+        return {
+          x: perspectiveX + (inStage.x - perspectiveX) * perspectiveScale,
+          y: perspectiveY + (inStage.y - perspectiveY) * perspectiveScale
+        };
+      };
+    }
+
+    function drawLayerMesh(context, image, projectPoint, opacity, scale) {
+      const columns = 36;
+      const rows = Math.max(12, Math.round(columns / (image.naturalWidth / image.naturalHeight)));
+      const cellWidth = image.naturalWidth / columns;
+      const cellHeight = image.naturalHeight / rows;
+
+      context.save();
+      context.globalAlpha = opacity;
+      for (let y = 0; y < rows; y += 1) {
+        for (let x = 0; x < columns; x += 1) {
+          const sx0 = x * cellWidth;
+          const sx1 = (x + 1) * cellWidth;
+          const sy0 = y * cellHeight;
+          const sy1 = (y + 1) * cellHeight;
+          const p00 = projectPoint(sx0, sy0);
+          const p10 = projectPoint(sx1, sy0);
+          const p11 = projectPoint(sx1, sy1);
+          const p01 = projectPoint(sx0, sy1);
+
+          drawTriangle(
+            context,
+            image,
+            [{ x: sx0, y: sy0 }, { x: sx1, y: sy0 }, { x: sx1, y: sy1 }],
+            [p00, p10, p11],
+            scale
+          );
+          drawTriangle(
+            context,
+            image,
+            [{ x: sx0, y: sy0 }, { x: sx1, y: sy1 }, { x: sx0, y: sy1 }],
+            [p00, p11, p01],
+            scale
+          );
+        }
+      }
+      context.restore();
+    }
+
+    async function drawLaptopReference(context, stageRect, scale) {
+      if (!state.canvas.laptop.visible) return;
+
+      const dataUrl = await imageToDataUrl(laptopReference.currentSrc || laptopReference.src);
+      const image = await loadImage(dataUrl);
+      const rect = laptopReference.getBoundingClientRect();
+      const opacity = state.canvas.laptop.opacity / 100;
+
+      const x = (rect.left - stageRect.left) * scale;
+      const y = (rect.top - stageRect.top) * scale;
+      const width = rect.width * scale;
+      const height = rect.height * scale;
+
+      context.save();
+      context.globalAlpha = opacity;
+      if (state.canvas.displayMirrored) {
+        context.translate(x + width / 2, y + height / 2);
+        context.scale(-1, 1);
+        context.drawImage(image, -width / 2, -height / 2, width, height);
+      } else {
+        context.drawImage(image, x, y, width, height);
+      }
+      context.restore();
+    }
+
+    async function exportTransparentPng() {
+      const button = document.getElementById('exportPng');
+      const previousLabel = button.textContent;
+
+      if (window.location.protocol === 'file:') {
+        alert('PNG export requires this tool to be served over http:// or https://. Open it with "Start Living Screenshots.command" locally, or use the GitHub Pages version.');
+        return;
+      }
+
+      button.textContent = 'Exporting...';
+      button.disabled = true;
+      button.dataset.exportStatus = 'working';
+
+      try {
+        const stage = document.querySelector('.stage');
+        const stageRect = stage.getBoundingClientRect();
+        const scale = Math.max(2, Math.ceil(window.devicePixelRatio || 1));
+        const exportWidth = Math.ceil(stageRect.width);
+        const exportHeight = Math.ceil(stageRect.height);
+        const canvas = document.createElement('canvas');
+        canvas.width = exportWidth * scale;
+        canvas.height = exportHeight * scale;
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        await drawLaptopReference(context, stageRect, scale);
+
+        for (const layer of document.querySelectorAll('.layer')) {
+          const dataUrl = await imageToDataUrl(layer.currentSrc || layer.src);
+          const image = await loadImage(dataUrl);
+          const layerStyle = getComputedStyle(layer);
+          const opacity = Number(layerStyle.opacity) || 1;
+          const projectPoint = createLayerProjector(layer, image, stage);
+          if (layer.dataset.layer === 'foreground') {
+            button.dataset.exportQuad = JSON.stringify([
+              projectPoint(0, 0),
+              projectPoint(image.naturalWidth, 0),
+              projectPoint(image.naturalWidth, image.naturalHeight),
+              projectPoint(0, image.naturalHeight)
+            ]);
+          }
+          drawLayerMesh(context, image, projectPoint, opacity, scale);
+        }
+
+        button.dataset.cornerAlpha = context.getImageData(0, 0, 1, 1).data[3];
+        const pngBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+        if (!pngBlob) throw new Error('PNG export failed');
+        button.dataset.exportStatus = 'success';
+        button.dataset.exportBytes = pngBlob.size;
+
+        const downloadUrl = URL.createObjectURL(pngBlob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `living-screenshot-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.png`;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+      } catch (error) {
+        button.dataset.exportStatus = 'error';
+        console.error(error);
+        alert('PNG export failed. Check the browser console for details.');
+      } finally {
+        button.textContent = previousLabel;
+        button.disabled = false;
+      }
+    }
+
+    function resetControlValues() {
+      document.querySelectorAll('input[type="range"], input[type="number"]').forEach((input) => {
+        const { group, key, path } = input.dataset;
+        if (!group || !key) return;
+        const target = path ? state[group][path] : state[group];
+        if (target && key in target) input.value = target[key];
+      });
+      syncAnimationButton();
+      document.getElementById('animationAxis').value = state.animation.axis;
+      document.getElementById('canvasGrid').checked = state.canvas.grid;
+      document.getElementById('canvasBg').value = state.canvas.background;
+      document.getElementById('displayVariant').value = laptopSources[state.canvas.laptopVariant] ? state.canvas.laptopVariant : 'dark';
+      document.getElementById('mirrorDisplay').checked = Boolean(state.canvas.displayMirrored);
+      document.getElementById('laptopVisible').checked = state.canvas.laptop.visible;
+    }
+
+    document.getElementById('animationToggle').addEventListener('click', () => {
+      state.animation.enabled = !state.animation.enabled;
+      syncAnimationButton();
+      applyState();
+    });
+
+    document.getElementById('animationAxis').addEventListener('change', (event) => {
+      state.animation.axis = event.target.value;
+      applyState();
+    });
+
+    document.getElementById('assetSetSelect').addEventListener('change', (event) => {
+      applyAssetSet(event.target.value, { persist: true });
+    });
+
+    document.getElementById('chooseAssetsFolder').addEventListener('click', async () => {
+      try {
+        await chooseAssetsDirectory();
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error(error);
+          document.getElementById('assetStatus').textContent = 'Could not read that folder.';
+        }
+      }
+    });
+
+    document.getElementById('rescanAssetsFolder').addEventListener('click', async () => {
+      try {
+        if (assetsDirectoryHandle) {
+          await scanAssetsDirectory(assetsDirectoryHandle);
+        } else if (!(await scanServerAssetFolders())) {
+          document.getElementById('assetStatus').textContent = 'No server asset folders found. Choose a folder to scan local assets.';
+        } else {
+          applyAssetSet(state.canvas.assetSet, { persist: true });
+        }
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error(error);
+          document.getElementById('assetStatus').textContent = 'Could not rescan assets.';
+        }
+      }
+    });
+
+    document.getElementById('canvasGrid').addEventListener('change', (event) => {
+      state.canvas.grid = event.target.checked;
+      applyState();
+    });
+
+    document.getElementById('canvasBg').addEventListener('input', (event) => {
+      state.canvas.background = Number(event.target.value);
+      applyState();
+    });
+
+    document.getElementById('displayVariant').addEventListener('change', (event) => {
+      state.canvas.laptopVariant = event.target.value;
+      applyState();
+    });
+
+    document.getElementById('mirrorDisplay').addEventListener('change', (event) => {
+      state.canvas.displayMirrored = event.target.checked;
+      applyState();
+    });
+
+    document.getElementById('laptopVisible').addEventListener('change', (event) => {
+      state.canvas.laptop.visible = event.target.checked;
+      applyState();
+    });
+
+    document.getElementById('toggleGuides').addEventListener('click', () => {
+      state.canvas.guides = !state.canvas.guides;
+      applyState();
+    });
+
+    document.getElementById('panelToggle').addEventListener('click', () => {
+      state.canvas.panelCollapsed = !state.canvas.panelCollapsed;
+      applyState();
+      document.getElementById('panelToggle').focus();
+    });
+
+    document.getElementById('openSettings').addEventListener('click', () => {
+      document.getElementById('settingsModal').classList.add('open');
+      document.getElementById('closeSettings').focus();
+    });
+
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('open');
+      document.getElementById('openSettings').focus();
+    }
+
+    document.getElementById('closeSettings').addEventListener('click', closeSettings);
+
+    document.getElementById('settingsModal').addEventListener('click', (event) => {
+      if (event.target.id === 'settingsModal') closeSettings();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && document.getElementById('settingsModal').classList.contains('open')) {
+        closeSettings();
+      }
+    });
+
+    document.getElementById('resetApp').addEventListener('click', () => {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // Storage can be unavailable in private or embedded contexts.
+      }
+      state = createDefaultState();
+      renderAssetOptions();
+      applyAssetSet(state.canvas.assetSet, { persist: false });
+      resetControlValues();
+      applyState({ persist: false });
+      closeSettings();
+    });
+
+    document.getElementById('copyCss').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(exportOutput.value);
+    });
+
+    document.getElementById('copyJson').addEventListener('click', async () => {
+      const json = JSON.stringify(state, null, 2);
+      exportOutput.value = json;
+      await navigator.clipboard.writeText(json);
+    });
+
+    document.getElementById('exportPng').addEventListener('click', exportTransparentPng);
+
+    renderAssetOptions();
+    applyAssetSet(state.canvas.assetSet, { persist: false });
+    renderControls();
+    resetControlValues();
+    applyState();
+    measurePayloadSizes();
+    scanServerAssetFolders();
+  </script>
+</body>
+</html>
