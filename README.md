@@ -2,6 +2,8 @@
 
 A lightweight static tool for composing layered SVG screenshots into a subtle 3D “living screenshot” hero image. It uses plain HTML, CSS, and browser JavaScript. There is no build step.
 
+[Live GitHub Pages demo](https://adrian3.github.io/dynamic-screenshot-generator/)
+
 ## What It Does
 
 - Layers four SVG files into a CSS 3D stack.
@@ -37,6 +39,8 @@ http://127.0.0.1:8787/index.html
 
 This project is ready to run as a static GitHub Pages site. Publish the repository root as the Pages source. No build command is required.
 
+Live site: https://adrian3.github.io/dynamic-screenshot-generator/
+
 Recommended Pages setup:
 
 1. The current product-specific SVG screenshot layers are intentionally ignored by git. Replace them with generic/public-safe versions before publishing a complete demo.
@@ -48,7 +52,7 @@ Recommended Pages setup:
 3. Push `index.html`, `assets/`, `.nojekyll`, and this README.
 4. In GitHub, enable Pages for the repository root or `/docs` if you later move the files there.
 
-Because screenshot SVGs are currently ignored, add public-safe replacements by updating `.gitignore` or by force-adding the intended generic SVG files.
+Because screenshot SVGs are currently ignored, the published page loads the app shell and display assets, but the default screenshot layer images will be missing until public-safe replacements are added. Add public-safe replacements by updating `.gitignore` or by force-adding the intended generic SVG files.
 
 ### Important Privacy Note
 
