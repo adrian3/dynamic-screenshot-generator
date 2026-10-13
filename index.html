@@ -36,6 +36,7 @@
       --laptop-scale: 1;
       --laptop-opacity: 1;
       --display-mirror: 1;
+      --screen-color: #30363c;
     }
 
     * {
@@ -184,15 +185,30 @@
       top: 50%;
       z-index: 0;
       width: min(88%, 1060px);
-      height: auto;
+      aspect-ratio: 1536 / 1024;
       opacity: var(--laptop-opacity);
       transform:
         translate(-50%, -50%)
-        translate(var(--laptop-x), var(--laptop-y))
+        translate(calc(var(--laptop-x) * var(--preview-fit, 1)), calc(var(--laptop-y) * var(--preview-fit, 1)))
         scale(calc(var(--laptop-scale) * var(--display-mirror)), var(--laptop-scale));
       transform-origin: center center;
       pointer-events: none;
       user-select: none;
+    }
+
+    .display-screen {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      fill: var(--screen-color);
+    }
+
+    .display-image {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: auto;
     }
 
     .scene-frame {
@@ -291,7 +307,7 @@
       object-fit: contain;
       transform-style: preserve-3d;
       transform:
-        translate3d(var(--x), var(--y), calc(var(--z) * var(--layer-depth)))
+        translate3d(calc(var(--x) * var(--preview-fit, 1)), calc(var(--y) * var(--preview-fit, 1)), calc(var(--z) * var(--layer-depth) * var(--preview-fit, 1)))
         rotateX(var(--rx))
         rotateY(var(--ry))
         rotateZ(var(--rz))
@@ -343,6 +359,28 @@
     .canvas-control-row select {
       width: 128px;
       min-height: 28px;
+    }
+
+    .display-controls {
+      flex-wrap: wrap;
+      max-width: 100%;
+    }
+
+    .screen-color-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      white-space: nowrap;
+    }
+
+    .screen-color-control input {
+      width: 34px;
+      height: 28px;
+      padding: 2px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+      cursor: pointer;
     }
 
     .layer.guide {
@@ -688,6 +726,18 @@
         padding: 14px;
       }
 
+      .canvas-controls {
+        gap: 12px 18px;
+      }
+
+      .stage {
+        padding-bottom: calc(6vmin + 100px);
+      }
+
+      .laptop-reference {
+        top: calc(50% - 50px);
+      }
+
       .topbar {
         align-items: flex-start;
         flex-direction: column;
@@ -767,7 +817,7 @@
             <label class="field-label" for="canvasBg">Background</label>
             <input type="range" id="canvasBg" min="0" max="100" step="1" value="0" aria-label="Canvas background from white to black">
           </div>
-          <div class="canvas-control-row">
+          <div class="canvas-control-row display-controls">
             <label class="field-label" for="displayVariant">Display</label>
             <select id="displayVariant" aria-label="Display image">
               <option value="dark">Laptop Dark</option>
@@ -778,15 +828,24 @@
               <input type="checkbox" id="mirrorDisplay">
               <span>Mirror Display</span>
             </label>
+            <label class="field-label screen-color-control" for="screenColor">
+              Screen
+              <input type="color" id="screenColor" value="#30363c" aria-label="Display screen color" title="Display screen color">
+            </label>
           </div>
         </div>
         <div class="stage">
-          <img class="laptop-reference" id="laptopReference" src="assets/modern-open-laptop-reversed-transparent-with-background.png" alt="">
+          <div class="laptop-reference" id="displayReference">
+            <svg class="display-screen" id="displayScreen" viewBox="0 0 1536 1024" aria-hidden="true">
+              <polygon id="displayScreenFill" points="575,185 1302,136 1248,724 523,689"/>
+            </svg>
+            <img class="display-image" id="laptopReference" src="assets/modern-open-laptop-reversed-transparent-with-background-no-screen.png" width="1536" height="1024" alt="">
+          </div>
           <div class="scene-frame animating axis-y" id="scene">
-            <img class="layer" data-layer="background" src="assets/v2/Background.svg" alt="">
-            <img class="layer" data-layer="middleground" src="assets/v2/Middle Ground.svg" alt="">
-            <img class="layer" data-layer="middleForeground" src="assets/v2/Middle foreround.svg" alt="">
-            <img class="layer" data-layer="foreground" src="assets/v2/Foreround.svg" alt="">
+            <img class="layer" data-layer="background" src="assets/Chess Demo/Background.svg" alt="Chessboard drafting sheet">
+            <img class="layer" data-layer="middleground" src="assets/Chess Demo/Middle Ground.svg" alt="Chess pieces and knight schematic">
+            <img class="layer" data-layer="middleForeground" src="assets/Chess Demo/Middle Foreground.svg" alt="Chess move paths and central control">
+            <img class="layer" data-layer="foreground" src="assets/Chess Demo/Foreground.svg" alt="Chess position analysis annotations">
           </div>
         </div>
       </div>
@@ -898,27 +957,35 @@
     const scene = document.getElementById('scene');
     const stageShell = document.querySelector('.stage-shell');
     const laptopReference = document.getElementById('laptopReference');
+    const displayReference = document.getElementById('displayReference');
+    const displayScreenFill = document.getElementById('displayScreenFill');
+    const previewStage = document.querySelector('.stage');
+    const previewResizeObserver = new ResizeObserver(() => {
+      // Keep pixel offsets and depth proportional on narrow previews.
+      previewStage.style.setProperty('--preview-fit', Math.min(1, scene.offsetWidth / 760));
+    });
+    previewResizeObserver.observe(scene);
     const exportOutput = document.getElementById('exportOutput');
     const layerOrder = ['background', 'middleground', 'middleForeground', 'foreground'];
     const builtInAssetSets = [
       {
-        name: 'v1',
+        name: 'Chess Demo',
         source: 'built-in',
         layers: {
-          background: { name: 'Background.svg', url: 'assets/v1/Background.svg' },
-          middleground: { name: 'Middle Ground.svg', url: 'assets/v1/Middle Ground.svg' },
-          middleForeground: { name: 'Middle foreround.svg', url: 'assets/v1/Middle foreround.svg' },
-          foreground: { name: 'Foreround.svg', url: 'assets/v1/Foreround.svg' }
+          background: { name: 'Background.svg', url: 'assets/Chess Demo/Background.svg' },
+          middleground: { name: 'Middle Ground.svg', url: 'assets/Chess Demo/Middle Ground.svg' },
+          middleForeground: { name: 'Middle Foreground.svg', url: 'assets/Chess Demo/Middle Foreground.svg' },
+          foreground: { name: 'Foreground.svg', url: 'assets/Chess Demo/Foreground.svg' }
         }
       },
       {
-        name: 'v2',
+        name: 'Dashboard demo',
         source: 'built-in',
         layers: {
-          background: { name: 'Background.svg', url: 'assets/v2/Background.svg' },
-          middleground: { name: 'Middle Ground.svg', url: 'assets/v2/Middle Ground.svg' },
-          middleForeground: { name: 'Middle foreround.svg', url: 'assets/v2/Middle foreround.svg' },
-          foreground: { name: 'Foreround.svg', url: 'assets/v2/Foreround.svg' }
+          background: { name: 'Background.svg', url: 'assets/Dashboard demo/Background.svg' },
+          middleground: { name: 'Middle Ground.svg', url: 'assets/Dashboard demo/Middle Ground.svg' },
+          middleForeground: { name: 'Middle Foreground.svg', url: 'assets/Dashboard demo/Middle Foreground.svg' },
+          foreground: { name: 'Foreground.svg', url: 'assets/Dashboard demo/Foreground.svg' }
         }
       }
     ];
@@ -928,23 +995,33 @@
     let localAssetUrls = [];
     let assetsDirectoryHandle = null;
     const laptopSources = {
-      dark: 'assets/modern-open-laptop-reversed-transparent-with-background.png',
-      white: 'assets/modern-open-laptop-reversed-transparent-with-background-white.png',
-      monitor: 'assets/monitor-hero.png'
+      dark: 'assets/modern-open-laptop-reversed-transparent-with-background-no-screen.png',
+      white: 'assets/modern-open-laptop-reversed-transparent-with-background-white-no-screen.png',
+      monitor: 'assets/monitor-hero-no-screen.png'
     };
+    // Coordinates measured from the PNG alpha openings, with overlap inside the bezels.
+    const displayScreenShapes = {
+      laptop: [[575, 185], [1302, 136], [1248, 724], [523, 689]],
+      monitor: [[565, 204], [1284, 143], [1251, 701], [525, 664]]
+    };
+
+    function screenShapeFor(variant) {
+      return displayScreenShapes[variant === 'monitor' ? 'monitor' : 'laptop'];
+    }
 
     const canvasDefaults = {
       grid: true,
       background: 0,
       guides: false,
       panelCollapsed: false,
-      assetSet: 'v2',
+      assetSet: 'Chess Demo',
       laptopVariant: 'dark',
       displayMirrored: false,
+      screenColor: '#30363c',
       laptop: {
         visible: true,
         x: 101,
-        y: 53,
+        y: 95,
         scale: 1.02,
         opacity: 100
       }
@@ -990,9 +1067,9 @@
         title: 'Middle Ground',
         file: 'Middle Ground.svg',
         color: '#6d8e49',
-        x: 103,
-        y: 67,
-        z: 51,
+        x: 0,
+        y: -29,
+        z: 0,
         rotateX: 0,
         rotateY: 0,
         rotateZ: 0,
@@ -1005,11 +1082,11 @@
       },
       middleForeground: {
         title: 'Middle Foreground',
-        file: 'Middle foreround.svg',
+        file: 'Middle Foreground.svg',
         color: '#b06136',
         x: 0,
-        y: 83,
-        z: 121,
+        y: -29,
+        z: 85,
         rotateX: 0,
         rotateY: 0,
         rotateZ: 0,
@@ -1022,11 +1099,11 @@
       },
       foreground: {
         title: 'Foreground',
-        file: 'Foreround.svg',
+        file: 'Foreground.svg',
         color: '#9c4f74',
-        x: 163,
-        y: 130,
-        z: 182,
+        x: 0,
+        y: -29,
+        z: 170,
         rotateX: 0,
         rotateY: 0,
         rotateZ: 0,
@@ -1070,7 +1147,9 @@
 
     function loadState() {
       try {
-        return mergeSavedState(createDefaultState(), JSON.parse(localStorage.getItem(STORAGE_KEY)));
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved?.canvas?.assetSet === 'chess') saved.canvas.assetSet = 'Chess Demo';
+        return mergeSavedState(createDefaultState(), saved);
       } catch {
         return createDefaultState();
       }
@@ -1132,8 +1211,11 @@
     }
 
     function rebuildAssetSets() {
-      const baseSets = serverAssetSets.length ? serverAssetSets : structuredClone(builtInAssetSets);
-      assetSets = [...baseSets, ...localAssetSets];
+      const setsByName = new Map();
+      for (const set of [...builtInAssetSets, ...serverAssetSets, ...localAssetSets]) {
+        setsByName.set(set.name, set);
+      }
+      assetSets = [...setsByName.values()];
       renderAssetOptions();
     }
 
@@ -1142,7 +1224,7 @@
       select.replaceChildren(...assetSets.map((set) => {
         const option = document.createElement('option');
         option.value = set.name;
-        option.textContent = set.source === 'built-in' ? set.name : `${set.name} (local)`;
+        option.textContent = set.source === 'local' ? `${set.name} (local)` : set.name;
         return option;
       }));
 
@@ -1163,6 +1245,7 @@
         const layer = document.querySelector(`[data-layer="${key}"]`);
         if (layer && assetSet.layers[key]) {
           layer.src = assetSet.layers[key].url;
+          layer.alt = `${assetSet.name}: ${key.replace(/([A-Z])/g, ' $1')}`;
           layer.dataset.filename = assetSet.layers[key].name;
         }
       }
@@ -1430,7 +1513,10 @@
       if (!laptopReference.getAttribute('src').endsWith(laptopSource)) {
         laptopReference.src = laptopSource;
       }
-      laptopReference.hidden = !state.canvas.laptop.visible;
+      displayReference.hidden = !state.canvas.laptop.visible;
+      displayScreenFill.setAttribute('points', screenShapeFor(state.canvas.laptopVariant)
+        .map((point) => point.join(',')).join(' '));
+      root.style.setProperty('--screen-color', state.canvas.screenColor);
       root.style.setProperty('--laptop-x', `${state.canvas.laptop.x}px`);
       root.style.setProperty('--laptop-y', `${state.canvas.laptop.y}px`);
       root.style.setProperty('--laptop-scale', state.canvas.laptop.scale);
@@ -1505,6 +1591,7 @@
       const sceneCss = [
         `--canvas-bg: ${getComputedStyle(root).getPropertyValue('--canvas-bg').trim()};`,
         `--grid-line: ${getComputedStyle(root).getPropertyValue('--grid-line').trim()};`,
+        `--screen-color: ${state.canvas.screenColor};`,
         `--scene-perspective: ${state.scene.perspective}px;`,
         `--scene-rotate-x: ${state.scene.rotateX}deg;`,
         `--scene-rotate-y: ${state.scene.rotateY}deg;`,
@@ -1556,16 +1643,20 @@
         return total + encoder.encode(script.textContent || '').length;
       }, 0);
 
-      const imageResults = await Promise.all([...document.querySelectorAll('.layer')].map(async (img) => {
+      const images = [...document.querySelectorAll('.layer')];
+      const sources = images.map((img) => img.src);
+      const imageResults = await Promise.all(images.map(async (img, index) => {
         try {
-          const response = await fetch(img.currentSrc || img.src);
+          const response = await fetch(sources[index]);
+          if (!response.ok) throw new Error('Asset unavailable');
           const blob = await response.blob();
-          const name = decodeURIComponent(new URL(img.src).pathname.split('/').pop());
+          const name = decodeURIComponent(new URL(sources[index]).pathname.split('/').pop());
           return { name, bytes: blob.size };
         } catch {
           return { name: img.dataset.layer, bytes: NaN };
         }
       }));
+      if (images.some((img, index) => img.src !== sources[index])) return;
 
       const imagesBytes = imageResults.reduce((total, item) => {
         return total + (Number.isFinite(item.bytes) ? item.bytes : 0);
@@ -1743,10 +1834,26 @@
     async function drawLaptopReference(context, stageRect, scale) {
       if (!state.canvas.laptop.visible) return;
 
-      const dataUrl = await imageToDataUrl(laptopReference.currentSrc || laptopReference.src);
-      const image = await loadImage(dataUrl);
-      const rect = laptopReference.getBoundingClientRect();
+      const points = screenShapeFor(state.canvas.laptopVariant);
+      const color = state.canvas.screenColor;
       const opacity = state.canvas.laptop.opacity / 100;
+      const mirrored = state.canvas.displayMirrored;
+      const dataUrl = await imageToDataUrl(laptopReference.src);
+      const image = await loadImage(dataUrl);
+      const rect = displayReference.getBoundingClientRect();
+      const displayCanvas = document.createElement('canvas');
+      displayCanvas.width = image.naturalWidth;
+      displayCanvas.height = image.naturalHeight;
+      const displayContext = displayCanvas.getContext('2d');
+      displayContext.fillStyle = color;
+      displayContext.beginPath();
+      points.forEach(([px, py], index) => {
+        if (index === 0) displayContext.moveTo(px, py);
+        else displayContext.lineTo(px, py);
+      });
+      displayContext.closePath();
+      displayContext.fill();
+      displayContext.drawImage(image, 0, 0);
 
       const x = (rect.left - stageRect.left) * scale;
       const y = (rect.top - stageRect.top) * scale;
@@ -1755,12 +1862,12 @@
 
       context.save();
       context.globalAlpha = opacity;
-      if (state.canvas.displayMirrored) {
+      if (mirrored) {
         context.translate(x + width / 2, y + height / 2);
         context.scale(-1, 1);
-        context.drawImage(image, -width / 2, -height / 2, width, height);
+        context.drawImage(displayCanvas, -width / 2, -height / 2, width, height);
       } else {
-        context.drawImage(image, x, y, width, height);
+        context.drawImage(displayCanvas, x, y, width, height);
       }
       context.restore();
     }
@@ -1845,6 +1952,7 @@
       document.getElementById('canvasBg').value = state.canvas.background;
       document.getElementById('displayVariant').value = laptopSources[state.canvas.laptopVariant] ? state.canvas.laptopVariant : 'dark';
       document.getElementById('mirrorDisplay').checked = Boolean(state.canvas.displayMirrored);
+      document.getElementById('screenColor').value = state.canvas.screenColor;
       document.getElementById('laptopVisible').checked = state.canvas.laptop.visible;
     }
 
@@ -1908,6 +2016,11 @@
 
     document.getElementById('mirrorDisplay').addEventListener('change', (event) => {
       state.canvas.displayMirrored = event.target.checked;
+      applyState();
+    });
+
+    document.getElementById('screenColor').addEventListener('input', (event) => {
+      state.canvas.screenColor = event.target.value;
       applyState();
     });
 

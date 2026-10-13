@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Chess atlas: candidate move geometry</title>
+  <defs>
+    <marker id="mint-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1L10 6 1 11" fill="none" stroke="#a0e3cc" stroke-width="2"/></marker>
+    <marker id="coral-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1L10 6 1 11" fill="none" stroke="#f69f82" stroke-width="2"/></marker>
+  </defs>
+  <g stroke="#4d9d94" stroke-width="2">
+    <path d="M72 180V72H180M1740 72H1848V180M1848 857V965H1740M180 965H72V857"/>
+    <path d="M310 220H950V860H310Z" stroke-dasharray="7 12" stroke-opacity=".3"/>
+  </g>
+  <rect x="550" y="460" width="160" height="160" stroke="#a0e3cc" stroke-width="2"/>
+  <path d="M550 480V460H570M690 460H710V480M710 600V620H690M570 620H550V600" stroke="#a0e3cc" stroke-width="5"/>
+  <g stroke="#a0e3cc" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="590" cy="740" r="33" stroke-width="2"/>
+    <path d="M590 701V590" stroke-width="5" marker-end="url(#mint-arrow)"/>
+    <circle cx="590" cy="580" r="23" stroke-width="2" stroke-dasharray="4 6"/>
+    <path d="M750 624V500H687" stroke-width="4" marker-end="url(#mint-arrow)"/>
+    <circle cx="670" cy="500" r="32" stroke-width="2" stroke-dasharray="4 6"/>
+    <path d="M750 500H790V540" stroke-width="1.5" stroke-opacity=".6"/>
+  </g>
+  <g stroke="#f69f82" stroke-linecap="round">
+    <path d="M455 635L887 203" stroke-width="3" stroke-dasharray="10 9" marker-end="url(#coral-arrow)"/>
+    <circle cx="430" cy="660" r="37" stroke-width="2"/>
+    <path d="M432 621L467 585H1028" stroke-width="1.5"/>
+  </g>
+  <g fill="#a0e3cc"><circle cx="590" cy="740" r="5"/><circle cx="750" cy="660" r="5"/></g>
+  <g stroke="#a0e3cc" stroke-width="2" stroke-opacity=".85">
+    <path d="M966 465H1030M996 465V615M987 465L1005 465M987 615H1005"/>
+    <path d="M560 440H700M560 431V449M700 431V449"/>
+  </g>
+  <rect x="1148" y="712" width="636" height="163" fill="#19272b" fill-opacity=".95" stroke="#f69f82" stroke-opacity=".7"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="1180" y="753" font-size="18" fill="#f69f82">03 / CANDIDATE VECTORS</text>
+    <text x="1180" y="804" font-size="34" font-weight="700" fill="#f0f3e9">d4</text>
+    <path d="M1260 793H1360" stroke="#a0e3cc" stroke-width="4" marker-end="url(#mint-arrow)"/>
+    <text x="1400" y="804" font-size="26" fill="#a0e3cc">Claim the center</text>
+    <text x="1180" y="846" font-size="18" fill="#c4d6ce">Nxe5 / tactical candidate</text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#a0e3cc">
+    <text x="112" y="953">03 / MOVE GEOMETRY</text>
+    <text x="1808" y="953" text-anchor="end">CENTER / DIAGONALS / DEVELOPMENT</text>
+  </g>
+</svg>

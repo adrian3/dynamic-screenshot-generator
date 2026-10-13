@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Chess atlas: position annotations</title>
+  <g stroke="#eac778" stroke-width="2">
+    <path d="M72 122V72H122M1798 72H1848V122M1848 915V965H1798M122 965H72V915" stroke="#b78a38"/>
+    <circle cx="590" cy="580" r="48" stroke-dasharray="2 9"/>
+    <path d="M595 536L688 361H1056" stroke-width="1.5"/>
+    <circle cx="750" cy="660" r="48" stroke-dasharray="2 9"/>
+    <path d="M787 689L982 805H1088" stroke-width="1.5"/>
+    <path d="M575 580H605M590 565V595" stroke-opacity=".6"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="724" y="298" width="300" height="60" rx="3" fill="#19272b" stroke="#eac778"/>
+    <circle cx="750" cy="328" r="6" fill="#eac778"/>
+    <text x="770" y="336" font-size="23" fill="#f0f3e9">CENTRAL BREAK / d4</text>
+    <rect x="850" y="808" width="258" height="60" rx="3" fill="#19272b" stroke="#eac778"/>
+    <text x="873" y="846" font-size="22" fill="#f0f3e9">Nf3 / ACTIVE PIECE</text>
+    <rect x="1136" y="194" width="660" height="177" rx="3" fill="#19272b" stroke="#eac778" stroke-width="2"/>
+    <text x="1170" y="234" font-size="18" fill="#eac778">04 / POSITION SYNTHESIS</text>
+    <text x="1170" y="288" font-size="42" font-weight="700" fill="#f0f3e9">THE QUIET BUILD</text>
+    <text x="1170" y="335" font-size="23" fill="#c4d6ce">Ruy Lopez / Closed variation</text>
+  </g>
+  <g stroke="#eac778" stroke-opacity=".7" stroke-width="1.5">
+    <path d="M1194 451H1804V894H1110M1194 442V460M1804 884V904" stroke-dasharray="5 8"/>
+    <circle cx="1804" cy="451" r="7" fill="#19272b"/>
+    <path d="M1550 394H1778M1570 387V401M1590 387V401M1610 387V401M1630 387V401M1650 387V401M1670 387V401M1690 387V401M1710 387V401M1730 387V401M1750 387V401"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#eac778">
+    <text x="112" y="953">04 / ANNOTATIONS</text>
+    <text x="1808" y="953" text-anchor="end">CHESS ATLAS / STUDY 003</text>
+  </g>
+</svg>

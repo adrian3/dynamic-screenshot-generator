@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Application Observability: headline metrics and service health</title>
+  <g fill="#fff" stroke="#d0dce2" stroke-width="2">
+    <rect x="286" y="226" width="370" height="122" rx="4"/><rect x="678" y="226" width="370" height="122" rx="4"/>
+    <rect x="1070" y="226" width="370" height="122" rx="4"/><rect x="1462" y="226" width="370" height="122" rx="4"/>
+    <rect x="286" y="690" width="950" height="252" rx="4"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <g font-size="18" fill="#71818b">
+      <text x="308" y="256">Request rate</text><text x="700" y="256">P95 latency</text>
+      <text x="1092" y="256">Availability</text><text x="1484" y="256">Error rate</text>
+    </g>
+    <g font-size="45" font-weight="700" fill="#223b44">
+      <text x="308" y="307">24.8k<tspan font-size="22" font-weight="400" fill="#71818b"> /s</tspan></text>
+      <text x="700" y="307">142<tspan font-size="22" font-weight="400" fill="#71818b"> ms</tspan></text>
+      <text x="1092" y="307">99.98<tspan font-size="22" font-weight="400" fill="#71818b"> %</tspan></text>
+      <text x="1484" y="307">0.12<tspan font-size="22" font-weight="400" fill="#71818b"> %</tspan></text>
+    </g>
+    <g font-size="14">
+      <text x="308" y="331" fill="#23856b">+8.2% vs. previous hour</text>
+      <text x="700" y="331" fill="#ba7852">+12ms vs. previous hour</text>
+      <text x="1092" y="331" fill="#23856b">Above 99.9% SLO</text>
+      <text x="1484" y="331" fill="#23856b">-0.04% vs. previous hour</text>
+    </g>
+    <text x="310" y="726" font-size="22" font-weight="700" fill="#223b44">Service health</text>
+    <circle cx="1106" cy="720" r="5" fill="#23856b"/><text x="1120" y="726" font-size="15" fill="#23856b">10 healthy</text>
+  </g>
+  <g stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M543 311L554 300 565 303 576 292 587 300 598 278 609 284 620 275 631 267" stroke="#228579"/>
+    <path d="M947 309L958 301 969 304 980 283 991 295 1002 266 1013 287 1024 279" stroke="#d89b67"/>
+    <path d="M1347 287L1358 286 1369 287 1380 286 1391 287 1402 286 1413 287" stroke="#228579"/>
+    <path d="M1730 276L1741 289 1752 283 1763 296 1774 291 1785 306 1796 303 1807 313" stroke="#228579"/>
+  </g>
+  <path d="M286 743H1236" stroke="#dde5e9"/>
+  <rect x="287" y="744" width="948" height="34" fill="#f5f7f9"/>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#7d8e98">
+    <text x="310" y="766">SERVICE</text><text x="595" y="766">REQUESTS /s</text><text x="765" y="766">P95</text>
+    <text x="882" y="766">ERRORS</text><text x="1010" y="766">CPU LOAD</text><text x="1158" y="766">STATUS</text>
+  </g>
+  <g stroke="#e8edf0"><path d="M304 811H1215M304 844H1215M304 877H1215M304 910H1215"/></g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#3d5561">
+    <text x="333" y="801">api-gateway</text><text x="615" y="801">12,420</text><text x="768" y="801" fill="#bd8253">218ms</text><text x="889" y="801">0.18%</text>
+    <text x="333" y="834">auth-service</text><text x="615" y="834">3,810</text><text x="768" y="834">64ms</text><text x="889" y="834">0.02%</text>
+    <text x="333" y="867">payment-worker</text><text x="615" y="867">2,640</text><text x="768" y="867">96ms</text><text x="889" y="867">0.04%</text>
+    <text x="333" y="900">event-processor</text><text x="615" y="900">4,530</text><text x="768" y="900">82ms</text><text x="889" y="900">0.01%</text>
+    <text x="333" y="933">edge-cache</text><text x="615" y="933">1,400</text><text x="768" y="933">18ms</text><text x="889" y="933">0.00%</text>
+  </g>
+  <g fill="#23856b"><circle cx="315" cy="828" r="5"/><circle cx="315" cy="861" r="5"/><circle cx="315" cy="894" r="5"/><circle cx="315" cy="927" r="5"/></g>
+  <circle cx="315" cy="795" r="5" fill="#cf9759"/>
+  <g fill="#ecf0f2">
+    <rect x="1010" y="790" width="97" height="7" rx="2"/><rect x="1010" y="823" width="97" height="7" rx="2"/>
+    <rect x="1010" y="856" width="97" height="7" rx="2"/><rect x="1010" y="889" width="97" height="7" rx="2"/>
+    <rect x="1010" y="922" width="97" height="7" rx="2"/>
+  </g>
+  <g fill="#55ac98">
+    <rect x="1010" y="823" width="28" height="7" rx="2"/><rect x="1010" y="856" width="48" height="7" rx="2"/>
+    <rect x="1010" y="889" width="59" height="7" rx="2"/><rect x="1010" y="922" width="19" height="7" rx="2"/>
+  </g>
+  <rect x="1010" y="790" width="78" height="7" rx="2" fill="#cf9759"/>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="14">
+    <text x="1150" y="800" fill="#b67c49">Warning</text>
+    <g fill="#23856b"><text x="1150" y="833">Healthy</text><text x="1150" y="866">Healthy</text><text x="1150" y="899">Healthy</text><text x="1150" y="932">Healthy</text></g>
+  </g>
+</svg>

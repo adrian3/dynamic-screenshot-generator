@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Chess atlas: board construction</title>
+  <defs>
+    <pattern id="draft" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" stroke="#a0d5cc" stroke-opacity=".085"/>
+    </pattern>
+    <pattern id="squares" x="310" y="220" width="160" height="160" patternUnits="userSpaceOnUse">
+      <rect width="160" height="160" fill="#243c3f"/>
+      <path d="M0 0H80V80H0ZM80 80H160V160H80Z" fill="#456460"/>
+    </pattern>
+  </defs>
+  <rect x="48" y="48" width="1824" height="941" rx="4" fill="#19272b"/>
+  <rect x="48" y="48" width="1824" height="941" rx="4" fill="url(#draft)"/>
+  <rect x="72" y="72" width="1776" height="893" stroke="#a0d5cc" stroke-opacity=".32"/>
+  <g stroke="#a0d5cc" stroke-width="2">
+    <path d="M48 98V48H98M1822 48H1872V98M1872 939V989H1822M98 989H48V939"/>
+    <path d="M100 162H1820M1060 192V903M100 917H1820" stroke-opacity=".3"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="112" y="135" font-size="56" font-weight="700" fill="#f0f3e9">CHESS ATLAS</text>
+    <text x="690" y="128" font-size="20" fill="#a0d5cc">POSITION STUDY / 003</text>
+    <text x="1808" y="124" text-anchor="end" font-size="20" fill="#a0d5cc">RUY LOPEZ / C84</text>
+  </g>
+  <rect x="310" y="220" width="640" height="640" fill="url(#squares)"/>
+  <g stroke="#bdd8ce" stroke-opacity=".45">
+    <rect x="310" y="220" width="640" height="640" stroke-width="2"/>
+    <path d="M390 220V860M470 220V860M550 220V860M630 220V860M710 220V860M790 220V860M870 220V860M310 300H950M310 380H950M310 460H950M310 540H950M310 620H950M310 700H950M310 780H950"/>
+  </g>
+  <g font-family="monospace" font-size="22" fill="#a0d5cc" text-anchor="middle">
+    <text x="350" y="897">a</text><text x="430" y="897">b</text><text x="510" y="897">c</text><text x="590" y="897">d</text>
+    <text x="670" y="897">e</text><text x="750" y="897">f</text><text x="830" y="897">g</text><text x="910" y="897">h</text>
+    <text x="280" y="268">8</text><text x="280" y="348">7</text><text x="280" y="428">6</text><text x="280" y="508">5</text>
+    <text x="280" y="588">4</text><text x="280" y="668">3</text><text x="280" y="748">2</text><text x="280" y="828">1</text>
+  </g>
+  <g stroke="#a0d5cc" stroke-opacity=".65">
+    <path d="M310 204V184M950 204V184M310 192H950M302 192L318 192M942 192H958"/>
+    <path d="M258 220H234M258 860H234M246 220V860M238 212L254 228M238 852L254 868"/>
+    <path d="M1180 360H1760M1180 685H1760" stroke-opacity=".3"/>
+    <circle cx="1220" cy="758" r="15"/><circle cx="1290" cy="758" r="15"/>
+    <path d="M1235 758H1275M1305 758H1375M1385 748L1395 758L1385 768M1410 758H1510"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#a0d5cc">
+    <text x="1180" y="258" font-size="18">01 / BOARD CONSTRUCTION</text>
+    <text x="1180" y="306" font-size="34" font-weight="700" fill="#f0f3e9">64 squares. Infinite lines.</text>
+    <text x="1180" y="714" font-size="18">POSITION REFERENCE</text>
+    <text x="1180" y="830" font-size="22">8. c3 / ... O-O</text>
+    <text x="1180" y="867" font-size="18">White to move / 32 pieces</text>
+    <text x="112" y="953" font-size="18">CH / 003</text>
+    <text x="350" y="953" font-size="18">OPENING RESEARCH</text>
+    <text x="1808" y="953" text-anchor="end" font-size="18">8 x 8 / ORTHOGRAPHIC PLAN</text>
+  </g>
+  <g stroke="#a0d5cc" stroke-width="2" stroke-opacity=".6">
+    <path d="M176 495V525M161 510H191M176 555V585M161 570H191M998 205V235M983 220H1013M998 845V875M983 860H1013"/>
+  </g>
+</svg>

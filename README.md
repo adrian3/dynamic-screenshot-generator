@@ -10,8 +10,42 @@ A lightweight static tool for composing layered SVG screenshots into a subtle 3D
 - Lets you tune scene rotation, layer offsets, depth, motion, background, and display image placement.
 - Supports laptop dark, laptop light, and monitor display backgrounds.
 - Can mirror only the display image while leaving the screenshot layers unchanged.
+- Lets you choose a screen color for either laptop or the monitor, using their transparent-screen PNG variants.
 - Persists local control values in `localStorage`.
 - Exports the current frame as a transparent PNG when served over `http://` or `https://`.
+
+## Chess Showcase
+
+The default example is a four-layer chess blueprint in `assets/Chess Demo/`. Each SVG uses the original screenshot dimensions: `1920 x 1037`.
+
+- `Background.svg`: drafting grid, chessboard, coordinates, and title block.
+- `Middle Ground.svg`: a Ruy Lopez position and a knight construction drawing.
+- `Middle Foreground.svg`: candidate moves, diagonal geometry, and central control.
+- `Foreground.svg`: position analysis and annotation callouts.
+
+The transparent upper sheets use the existing CSS 3D transforms and pivot animation. Z Depth controls their separation; at zero depth the default sheets register as a single composition. These are original SVG drawings with no external fonts, libraries, or proprietary screenshots. Existing saved control values are preserved; Reset App loads the new showcase arrangement.
+
+## Dashboard Showcase
+
+Select `Dashboard demo` in the Folder dropdown to load **Application Observability**, a fictional infrastructure dashboard with synthetic data. Its four SVGs in `assets/Dashboard demo/` use the same `1920 x 1037` dimensions and registered layer arrangement:
+
+- `Background.svg`: application navigation, workspace header, and dashboard containers.
+- `Middle Ground.svg`: request throughput, CPU and memory utilization, and host heatmap.
+- `Middle Foreground.svg`: live metric summaries and a dense service health table.
+- `Foreground.svg`: a latency event annotation and active infrastructure incidents.
+
+Switching examples preserves scene orientation, motion, and layer offsets. The old `chess` selection automatically becomes `Chess Demo` without resetting saved settings.
+
+## Display Screen Color
+
+The Screen color swatch beside Mirror Display changes the computer screen's color and saves it with the other controls. A fitted SVG polygon sits behind the transparent opening in the PNG. The polygon and device share one container, so position, scale, opacity, visibility, and mirroring apply together. The two laptops use the same screen outline; the monitor has its own.
+
+All three device PNGs use `1536 x 1024` coordinates. The fill points are:
+
+- Laptops: `(575,185) (1302,136) (1248,724) (523,689)`.
+- Monitor: `(565,204) (1284,143) (1251,701) (525,664)`.
+
+The outlines cover the transparent screen with a small margin inside the opaque bezel. PNG export composites the fill with the device before applying opacity and mirroring, preserving transparency outside the computer.
 
 ## Running Locally
 
@@ -43,16 +77,16 @@ Live site: https://adrian3.github.io/dynamic-screenshot-generator/
 
 Recommended Pages setup:
 
-1. The current product-specific SVG screenshot layers are intentionally ignored by git. Replace them with generic/public-safe versions before publishing a complete demo.
+1. The public chess and dashboard SVG layers are included in the repository. Product-specific folders remain ignored by git.
 2. Keep the same four layer filenames in each asset folder when possible:
    - `Background.svg`
    - `Middle Ground.svg`
-   - `Middle foreround.svg`
-   - `Foreround.svg`
+   - `Middle Foreground.svg`
+   - `Foreground.svg`
 3. Push `index.html`, `assets/`, `.nojekyll`, and this README.
 4. In GitHub, enable Pages for the repository root or `/docs` if you later move the files there.
 
-Because screenshot SVGs are currently ignored, the published page loads the app shell and display assets, but the default screenshot layer images will be missing until public-safe replacements are added. Add public-safe replacements by updating `.gitignore` or by force-adding the intended generic SVG files.
+Both demo folders are registered in `builtInAssetSets`, so the complete examples work on GitHub Pages without directory listings.
 
 ### Important Privacy Note
 

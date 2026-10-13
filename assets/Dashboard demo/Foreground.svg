@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Application Observability: latency event and infrastructure incidents</title>
+  <path d="M1018 461V632" stroke="#d18e60" stroke-width="2" stroke-dasharray="5 6"/>
+  <circle cx="1018" cy="462" r="7" fill="#fff" stroke="#d18e60" stroke-width="3"/>
+  <path d="M1018 474L984 516" stroke="#d18e60" stroke-width="2"/>
+  <rect x="816" y="516" width="344" height="102" rx="4" fill="#fff" stroke="#d3dfe4" stroke-width="2"/>
+  <rect x="816" y="516" width="4" height="102" fill="#d18e60"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="838" y="544" font-size="14" fill="#83939c">14:47 / eu-west-1</text>
+    <text x="838" y="571" font-size="20" font-weight="700" fill="#293f49">Latency threshold exceeded</text>
+    <text x="838" y="597" font-size="16" fill="#6e828c">P95 218ms / target 200ms</text>
+  </g>
+  <rect x="1258" y="690" width="574" height="252" rx="4" fill="#fff" stroke="#d3dfe4" stroke-width="2"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="1282" y="726" font-size="22" font-weight="700" fill="#293f49">Active incidents</text>
+    <rect x="1768" y="704" width="40" height="28" rx="4" fill="#faeee9"/>
+    <text x="1788" y="724" text-anchor="middle" font-size="16" font-weight="700" fill="#ba7156">3</text>
+  </g>
+  <path d="M1258 743H1832M1282 806H1808M1282 870H1808" stroke="#e4eaee"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <circle cx="1290" cy="772" r="6" fill="#d48b71"/>
+    <text x="1310" y="778" font-size="18" font-weight="700" fill="#3e5461">API latency above SLO</text>
+    <text x="1310" y="798" font-size="14" fill="#83939c">api-gateway / eu-west-1</text>
+    <text x="1808" y="778" text-anchor="end" font-size="14" fill="#b07158">4m ago</text>
+    <circle cx="1290" cy="836" r="6" fill="#d6a15e"/>
+    <text x="1310" y="842" font-size="18" font-weight="700" fill="#3e5461">Node memory pressure</text>
+    <text x="1310" y="862" font-size="14" fill="#83939c">worker-07 / us-east-1b</text>
+    <text x="1808" y="842" text-anchor="end" font-size="14" fill="#83939c">12m ago</text>
+    <circle cx="1290" cy="900" r="6" fill="#d6a15e"/>
+    <text x="1310" y="906" font-size="18" font-weight="700" fill="#3e5461">Queue depth increasing</text>
+    <text x="1310" y="926" font-size="14" fill="#83939c">event-processor / ap-south-1</text>
+    <text x="1808" y="906" text-anchor="end" font-size="14" fill="#83939c">18m ago</text>
+  </g>
+</svg>

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Application Observability: traffic, resource utilization, and host health</title>
+  <defs>
+    <g id="healthy-hosts">
+      <rect width="20" height="15" fill="#67bd9d"/><rect x="27" width="20" height="15" fill="#9ad1b9"/>
+      <rect x="54" width="20" height="15" fill="#54aa94"/><rect x="81" width="20" height="15" fill="#86c9b1"/>
+      <rect x="108" width="20" height="15" fill="#b0ddc9"/><rect x="135" width="20" height="15" fill="#6bbc9e"/>
+      <rect x="162" width="20" height="15" fill="#8cccaf"/><rect x="189" width="20" height="15" fill="#55ad95"/>
+      <rect x="216" width="20" height="15" fill="#9dd4be"/><rect x="243" width="20" height="15" fill="#73bea3"/>
+      <rect x="270" width="20" height="15" fill="#8dccb2"/><rect x="297" width="20" height="15" fill="#62b69b"/>
+      <rect x="324" width="20" height="15" fill="#aedaca"/><rect x="351" width="20" height="15" fill="#7fc5a9"/>
+      <rect x="378" width="20" height="15" fill="#55ad95"/><rect x="405" width="20" height="15" fill="#91ccb6"/>
+    </g>
+  </defs>
+  <g fill="#fff" stroke="#d4dfe4" stroke-width="2">
+    <rect x="286" y="376" width="950" height="292" rx="4"/>
+    <rect x="1258" y="376" width="574" height="292" rx="4"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#233b45">
+    <text x="310" y="412" font-size="22" font-weight="700">Request throughput</text>
+    <text x="1210" y="411" text-anchor="end" font-size="16" fill="#82929b">req/s / 1-minute buckets</text>
+    <text x="1282" y="412" font-size="22" font-weight="700">Infrastructure utilization</text>
+  </g>
+  <g stroke="#e6ecef" stroke-width="1.5">
+    <path d="M358 464H1194M358 506H1194M358 548H1194M358 590H1194M358 632H1194"/>
+    <path d="M358 464V632M497 464V632M636 464V632M775 464V632M914 464V632M1053 464V632M1194 464V632"/>
+    <path d="M1338 460H1797M1338 487H1797M1338 514H1797M1338 541H1797"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#8999a1">
+    <text x="340" y="469" text-anchor="end">30k</text><text x="340" y="511" text-anchor="end">20k</text>
+    <text x="340" y="553" text-anchor="end">10k</text><text x="340" y="595" text-anchor="end">5k</text>
+    <text x="340" y="636" text-anchor="end">0</text>
+    <text x="358" y="653">14:00</text><text x="497" y="653">14:10</text><text x="636" y="653">14:20</text>
+    <text x="775" y="653">14:30</text><text x="914" y="653">14:40</text><text x="1053" y="653">14:50</text>
+    <text x="1194" y="653" text-anchor="end">15:00</text>
+    <text x="1324" y="465" text-anchor="end">100%</text><text x="1324" y="506" text-anchor="end">50%</text>
+    <text x="1324" y="544" text-anchor="end">0%</text>
+  </g>
+  <path d="M358 565L380 559 402 567 424 540 446 548 468 543 490 551 512 535 534 537 556 527 578 537 600 519 622 529 644 515 666 523 688 500 710 510 732 504 754 516 776 489 798 496 820 487 842 491 864 473 886 479 908 489 930 480 952 491 974 478 996 485 1018 462 1040 475 1062 467 1084 485 1106 476 1128 483 1150 470 1172 474 1194 461V632H358Z" fill="#e9f4f0"/>
+  <g stroke-linejoin="round" stroke-linecap="round" stroke-width="3">
+    <path d="M358 565L380 559 402 567 424 540 446 548 468 543 490 551 512 535 534 537 556 527 578 537 600 519 622 529 644 515 666 523 688 500 710 510 732 504 754 516 776 489 798 496 820 487 842 491 864 473 886 479 908 489 930 480 952 491 974 478 996 485 1018 462 1040 475 1062 467 1084 485 1106 476 1128 483 1150 470 1172 474 1194 461" stroke="#228579"/>
+    <path d="M358 586L380 592 402 578 424 582 446 567 468 572 490 562 512 568 534 554 556 566 578 548 600 559 622 547 644 552 666 536 688 546 710 535 732 548 754 542 776 528 798 535 820 526 842 541 864 533 886 540 908 524 930 539 952 546 974 531 996 536 1018 526 1040 540 1062 533 1084 540 1106 526 1128 537 1150 541 1172 532 1194 525" stroke="#508dcc"/>
+    <path d="M358 613L380 609 402 615 424 601 446 609 468 603 490 611 512 598 534 607 556 599 578 604 600 593 622 602 644 594 666 599 688 590 710 596 732 589 754 598 776 584 798 591 820 586 842 588 864 579 886 586 908 581 930 586 952 579 974 584 996 576 1018 582 1040 575 1062 581 1084 570 1106 579 1128 571 1150 578 1172 568 1194 574" stroke="#977cb8"/>
+    <path d="M1338 497L1355 492 1372 500 1389 489 1406 483 1423 488 1440 479 1457 487 1474 472 1491 480 1508 473 1525 465 1542 478 1559 469 1576 479 1593 486 1610 475 1627 482 1644 476 1661 485 1678 473 1695 480 1712 471 1729 476 1746 469 1763 482 1780 474 1797 478" stroke="#508dcc"/>
+    <path d="M1338 516L1355 514 1372 511 1389 514 1406 510 1423 512 1440 508 1457 509 1474 505 1491 507 1508 503 1525 505 1542 501 1559 503 1576 502 1593 499 1610 501 1627 499 1644 496 1661 499 1678 496 1695 498 1712 495 1729 494 1746 493 1763 494 1780 491 1797 493" stroke="#cf9556"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#667a84">
+    <circle cx="365" cy="440" r="4" fill="#228579"/><text x="379" y="446">us-east-1</text>
+    <circle cx="501" cy="440" r="4" fill="#508dcc"/><text x="515" y="446">eu-west-1</text>
+    <circle cx="637" cy="440" r="4" fill="#977cb8"/><text x="651" y="446">ap-south-1</text>
+    <circle cx="1590" cy="435" r="4" fill="#508dcc"/><text x="1603" y="441">CPU 68%</text>
+    <circle cx="1717" cy="435" r="4" fill="#cf9556"/><text x="1730" y="441">RAM 54%</text>
+    <text x="1282" y="599">Hosts</text>
+  </g>
+  <g transform="translate(1372 558)">
+    <use href="#healthy-hosts"/><use href="#healthy-hosts" y="22"/><use href="#healthy-hosts" y="44"/><use href="#healthy-hosts" y="66"/>
+    <rect x="216" y="22" width="20" height="15" fill="#e4bb6d"/><rect x="243" y="22" width="20" height="15" fill="#dc8d76"/>
+    <rect x="243" y="44" width="20" height="15" fill="#e4bb6d"/><rect x="378" y="66" width="20" height="15" fill="#dbad63"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#8999a1">
+    <text x="1360" y="569" text-anchor="end">a</text><text x="1360" y="591" text-anchor="end">b</text>
+    <text x="1360" y="613" text-anchor="end">c</text><text x="1360" y="635" text-anchor="end">d</text>
+    <text x="1372" y="650">Healthy</text><text x="1797" y="650" text-anchor="end">128 hosts / 4 above threshold</text>
+  </g>
+</svg>
