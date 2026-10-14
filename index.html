@@ -25,7 +25,7 @@
         <div class="canvas-controls">
           <label class="check-control"><input type="checkbox" id="canvasGrid" checked><span>Grid</span></label>
           <label class="background-control">Background<input type="range" id="canvasBg" min="0" max="100" step="1" value="0" aria-label="Background from white to black"></label>
-          <div class="finish-control"><span>Finish</span><button class="finish-swatch gray" data-finish="gray" aria-label="Space Gray" title="Space Gray" aria-pressed="true"></button><button class="finish-swatch silver" data-finish="silver" aria-label="Silver" title="Silver" aria-pressed="false"></button><input type="color" id="bodyColor" value="#4f5560" aria-label="Laptop body color" title="Laptop body color"></div>
+          <div class="finish-control"><span>Finish</span><button class="finish-swatch gray" data-finish="gray" aria-label="Space Gray" title="Space Gray" aria-pressed="true"></button><button class="finish-swatch silver" data-finish="silver" aria-label="Silver" title="Silver" aria-pressed="false"></button><input type="color" id="bodyColor" value="#4f5560" aria-label="Display body color" title="Display body color"></div>
           <label class="color-control">Screen<input type="color" id="screenColor" value="#e8f3f0" aria-label="Screen color" title="Screen color"></label>
         </div>
       </div>
@@ -39,7 +39,7 @@
           <p class="asset-status" id="assetStatus" role="status"></p>
         </section>
         <details class="section" open><summary>Scene Orientation</summary><div class="section-body" id="sceneControls"></div></details>
-        <details class="section" open><summary>Laptop</summary><div class="section-body"><label class="check-control"><input type="checkbox" id="laptopVisible" checked>Visible</label><div id="laptopControls"></div></div></details>
+        <details class="section" open><summary>Display</summary><div class="section-body"><div class="select-row"><label for="deviceSelect">Model</label><select id="deviceSelect"><option value="laptop">Laptop</option><option value="desktop">Desktop</option></select></div><label class="check-control"><input type="checkbox" id="deviceVisible" checked>Visible</label><div id="laptopControls" class="device-controls"></div><div id="desktopControls" class="device-controls" hidden></div></div></details>
         <details class="section" open><summary>Living Motion</summary><div class="section-body"><div class="select-row"><span>Animation</span><button class="command-button play-button" id="animationToggle" aria-label="Pause animation" aria-pressed="true"><span data-icon="Pause"></span><span id="animationLabel">Pause</span></button></div><div class="select-row"><label for="animationAxis">Axis</label><select id="animationAxis"><option value="y">Y pivot</option><option value="x">X pivot</option><option value="z">Z pivot</option></select></div><div id="animationControls"></div></div></details>
         <div id="layerControls"></div>
       </div>

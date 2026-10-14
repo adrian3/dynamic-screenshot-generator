@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from './vendor/three/OrbitControls.js';
 import { RoomEnvironment } from './vendor/three/RoomEnvironment.js';
 import { createLaptop, SCREEN_WIDTH } from './laptop.js';
+import { createDesktop } from './desktop.js';
 import { icon } from './icons.js';
 
 const STORAGE_KEY='living-screenshots-3d-state-v1';
@@ -39,8 +40,10 @@ let elapsed=0;
 function defaults() {
   return {
     canvas:{grid:true,background:0,panelCollapsed:false,assetSet:'Dashboard demo',highQuality:false},
+    device:'laptop',
     scene:{perspective:38,rotateX:24,rotateY:-28,rotateZ:0,scale:1},
     laptop:{visible:true,x:0,y:0,z:0,scale:1,lidAngle:105,finish:'gray',bodyColor:'#4f5560',screenColor:demoScreenColors['Dashboard demo']},
+    desktop:{visible:true,x:0,y:0,z:0,scale:1,tilt:7,finish:'silver',bodyColor:'#c4c7cc'},
     demoScreenColors:{...demoScreenColors},
     animation:{enabled:!matchMedia('(prefers-reduced-motion: reduce)').matches,axis:'y',angle:4.5,speed:9000,depth:1.2,time:0},
     layers:Object.fromEntries(layerOrder.map((key,index)=>[key,{x:0,y:0,z:index*.22,rotateX:0,rotateY:0,rotateZ:0,scale:1,opacity:100}]))
@@ -61,7 +64,7 @@ function loadState() {
   try{return merge(defaults(),JSON.parse(localStorage.getItem(STORAGE_KEY)));}catch{return defaults();}
 }
 function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch{}}
-state=loadState();elapsed=state.animation.time;
+state=loadState();if(!['laptop','desktop'].includes(state.device))state.device='laptop';elapsed=state.animation.time;
 
 document.querySelectorAll('[data-icon]').forEach(element=>element.replaceChildren(icon(element.dataset.icon)));
 document.querySelectorAll('summary').forEach(element=>element.append(icon('ChevronDown')));
@@ -81,7 +84,7 @@ renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.shadowMap.autoUpdate=false;
 renderer.domElement.id='sceneCanvas';
-renderer.domElement.setAttribute('aria-label','3D laptop and layered screenshots');
+renderer.domElement.setAttribute('aria-label','3D computer and layered screenshots');
 viewport.prepend(renderer.domElement);
 
 const scene=new THREE.Scene();
@@ -109,6 +112,8 @@ const fillLight=new THREE.DirectionalLight('#dcecff',2);fillLight.position.set(5
 const rimLight=new THREE.DirectionalLight('#ffffff',2);rimLight.position.set(1,5,-5);scene.add(rimLight);
 
 const laptop=createLaptop();scene.add(laptop.group);
+const desktop=createDesktop();scene.add(desktop.group);
+const devices={laptop,desktop};
 const layerMeshes=layerOrder.map((key,index)=>{
   const material=new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,alphaTest:.005,side:THREE.FrontSide,toneMapped:false});
   const mesh=new THREE.Mesh(new THREE.PlaneGeometry(SCREEN_WIDTH,SCREEN_WIDTH*1037/1920),material);
@@ -122,6 +127,7 @@ grid.material.transparent=true;grid.material.opacity=.26;grid.material.depthWrit
 const specs={
   scene:[['perspective','Perspective',25,60,1],['rotateX','Rotate X',MIN_ELEVATION,MAX_ELEVATION,1],['rotateY','Rotate Y',-90,90,1],['rotateZ','Rotate Z',-20,20,1],['scale','Scale',.65,1.65,.01]],
   laptop:[['lidAngle','Lid angle',90,125,1],['x','X',-1.5,1.5,.01],['y','Y',-.2,1,.01],['z','Z',-1,1,.01],['scale','Scale',.65,1.3,.01]],
+  desktop:[['tilt','Screen tilt',-5,20,1],['x','X',-1.5,1.5,.01],['y','Y',-.2,1,.01],['z','Z',-1,1,.01],['scale','Scale',.65,1.3,.01]],
   animation:[['angle','Intensity',0,15,.1],['speed','Speed',3000,20000,250],['depth','Z Depth',0,2.5,.01]],
   layer:[['x','X',-1,1,.01],['y','Y',-1,1,.01],['z','Depth',0,1.5,.01],['rotateX','Rotate X',-30,30,1],['rotateY','Rotate Y',-30,30,1],['rotateZ','Rotate Z',-30,30,1],['scale','Scale',.5,1.5,.01],['opacity','Opacity',0,100,1]]
 };
@@ -145,7 +151,7 @@ function makeControl(group,[key,label,min,max,step],path) {
 }
 
 function renderControls() {
-  for(const group of ['scene','laptop','animation'])document.getElementById(`${group}Controls`).replaceChildren(...specs[group].map(spec=>makeControl(group,spec)));
+  for(const group of ['scene','laptop','desktop','animation'])document.getElementById(`${group}Controls`).replaceChildren(...specs[group].map(spec=>makeControl(group,spec)));
   const sections=layerOrder.map((key,index)=>{
     const detail=document.createElement('details');detail.className='section';
     const summary=document.createElement('summary');
@@ -162,9 +168,12 @@ function syncControls() {
   document.querySelectorAll('input[data-group]').forEach(input=>{input.value=target(input.dataset.group,input.dataset.path)[input.dataset.key];});
   document.getElementById('canvasGrid').checked=state.canvas.grid;
   document.getElementById('canvasBg').value=state.canvas.background;
-  document.getElementById('bodyColor').value=state.laptop.bodyColor;
+  document.getElementById('bodyColor').value=state[state.device].bodyColor;
   document.getElementById('screenColor').value=state.laptop.screenColor;
-  document.getElementById('laptopVisible').checked=state.laptop.visible;
+  document.getElementById('deviceSelect').value=state.device;
+  document.getElementById('deviceVisible').checked=state[state.device].visible;
+  document.getElementById('laptopControls').hidden=state.device!=='laptop';
+  document.getElementById('desktopControls').hidden=state.device!=='desktop';
   document.getElementById('highQuality').checked=state.canvas.highQuality;
   document.getElementById('animationAxis').value=state.animation.axis;
   const play=document.getElementById('animationToggle');play.querySelector('[data-icon]').replaceChildren(icon(state.animation.enabled?'Pause':'Play'));
@@ -172,7 +181,7 @@ function syncControls() {
   play.setAttribute('aria-pressed',state.animation.enabled);play.setAttribute('aria-label',state.animation.enabled?'Pause animation':'Play animation');
   const panel=document.getElementById('panelToggle');panel.replaceChildren(icon(state.canvas.panelCollapsed?'PanelRightOpen':'PanelRightClose'));
   panel.setAttribute('aria-expanded',!state.canvas.panelCollapsed);panel.title=state.canvas.panelCollapsed?'Expand controls':'Collapse controls';panel.setAttribute('aria-label',panel.title);
-  document.querySelectorAll('[data-finish]').forEach(button=>button.setAttribute('aria-pressed',button.dataset.finish===state.laptop.finish));
+  document.querySelectorAll('[data-finish]').forEach(button=>button.setAttribute('aria-pressed',button.dataset.finish===state[state.device].finish));
 }
 
 function resize() {
@@ -187,7 +196,12 @@ function applyState({persist=true}={}) {
   root.style.setProperty('--canvas-color',`rgb(${shade},${shade},${shade})`);root.style.setProperty('--canvas-ink',shade<128?'#e6edf1':'#20272d');
   grid.visible=state.canvas.grid;grid.material.color.set(shade<128?'#687780':'#d0dadd');
   laptop.update(state.laptop);
+  desktop.update({...state.desktop,screenColor:state.laptop.screenColor});
+  laptop.group.visible=state.device==='laptop';desktop.group.visible=state.device==='desktop';
+  controls.target.set(0,state.device==='desktop'?1.25:1.05,.05);
+  const screenAnchor=devices[state.device].screenAnchor;
   layerMeshes.forEach((mesh,index)=>{
+    if(mesh.parent!==screenAnchor)screenAnchor.add(mesh);
     const values=state.layers[layerOrder[index]];
     mesh.position.set(values.x,values.y,.003+index*.0005+values.z*state.animation.depth);
     mesh.rotation.set(THREE.MathUtils.degToRad(values.rotateX),THREE.MathUtils.degToRad(values.rotateY),THREE.MathUtils.degToRad(values.rotateZ));
@@ -330,9 +344,13 @@ document.getElementById('screenColor').addEventListener('input',event=>{
   if(Object.hasOwn(state.demoScreenColors,state.canvas.assetSet))state.demoScreenColors[state.canvas.assetSet]=event.target.value;
   applyState();
 });
-document.getElementById('bodyColor').addEventListener('input',event=>{state.laptop.bodyColor=event.target.value;state.laptop.finish='custom';applyState();});
-document.querySelectorAll('[data-finish]').forEach(button=>button.addEventListener('click',()=>{state.laptop.finish=button.dataset.finish;state.laptop.bodyColor=button.dataset.finish==='gray'?'#4f5560':'#c4c7cc';applyState();}));
-document.getElementById('laptopVisible').addEventListener('change',event=>{state.laptop.visible=event.target.checked;applyState();});
+document.getElementById('bodyColor').addEventListener('input',event=>{state[state.device].bodyColor=event.target.value;state[state.device].finish='custom';applyState();});
+document.querySelectorAll('[data-finish]').forEach(button=>button.addEventListener('click',()=>{state[state.device].finish=button.dataset.finish;state[state.device].bodyColor=button.dataset.finish==='gray'?'#4f5560':'#c4c7cc';applyState();}));
+document.getElementById('deviceSelect').addEventListener('change',event=>{
+  if(!Object.hasOwn(devices,event.target.value))return;
+  state.device=event.target.value;applyState();
+});
+document.getElementById('deviceVisible').addEventListener('change',event=>{state[state.device].visible=event.target.checked;applyState();});
 document.getElementById('panelToggle').addEventListener('click',()=>{state.canvas.panelCollapsed=!state.canvas.panelCollapsed;applyState();});
 document.getElementById('resetView').addEventListener('click',()=>{state.scene=defaults().scene;elapsed=0;applyState();});
 document.getElementById('openSettings').addEventListener('click',()=>document.getElementById('settingsModal').showModal());
@@ -360,4 +378,4 @@ function frame(now) {
 renderControls();renderAssetOptions();applyState();loadAssetSet(state.canvas.assetSet);scanServer();
 requestAnimationFrame(frame);
 
-export {scene,camera,renderer,controls,laptop,layerMeshes,state};
+export {scene,camera,renderer,controls,laptop,desktop,layerMeshes,state};

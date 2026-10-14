@@ -59,6 +59,7 @@ select { width:100%; background:#fff; border:1px solid var(--line); border-radiu
 .layer-title { display:inline-flex; align-items:center; gap:9px; }
 .layer-dot { width:8px; height:8px; border-radius:50%; background:var(--dot-color); flex:none; }
 .section-body>.check-control { margin-bottom:10px; color:#68737d; }
+.device-controls[hidden] { display:none; }
 dialog { width:min(340px,calc(100% - 28px)); border:1px solid var(--line); border-radius:8px; padding:22px; color:var(--ink); box-shadow:0 20px 70px #0002; }
 dialog::backdrop { background:#18212a55; }
 dialog header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:24px; }
