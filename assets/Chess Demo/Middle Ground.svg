@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
-  <title>Chess atlas: pieces and knight construction</title>
+  <title>Eugene Chess: pieces and knight construction</title>
   <defs>
     <g id="pawn"><circle cy="-18" r="9"/><path d="M-8-6H8L11 13H-11ZM-15 18H15V25H-15Z"/></g>
     <g id="rook"><path d="M-19-28H-9V-18H-4V-28H4V-18H9V-28H19V-8H13L10 16H-10L-13-8H-19ZM-17 20H17V27H-17Z"/><path d="M-13-8H13" fill="none"/></g>

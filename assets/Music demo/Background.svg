@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Signal Studio: session arrangement</title>
+  <defs>
+    <pattern id="bars" x="350" y="300" width="71" height="50" patternUnits="userSpaceOnUse">
+      <path d="M0 0V50M35.5 0V50" stroke="#c5cdd5" stroke-opacity=".09"/>
+      <path d="M0 50H71" stroke="#c5cdd5" stroke-opacity=".1"/>
+    </pattern>
+    <g id="track-controls" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" fill="#8a959f">
+      <rect x="0" y="0" width="24" height="22" rx="3" fill="#30373e"/>
+      <rect x="30" y="0" width="24" height="22" rx="3" fill="#30373e"/>
+      <text x="12" y="16">M</text><text x="42" y="16">S</text>
+    </g>
+  </defs>
+  <rect x="48" y="48" width="1824" height="941" rx="6" fill="#191d22"/>
+  <path d="M48 148H1872M48 238H1872M48 720H1872M48 947H1872" stroke="#353c44"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <g stroke="#71c8ac" stroke-width="4" stroke-linecap="round">
+      <path d="M92 95V119M102 86V128M112 99V115M122 91V123M132 101V113"/>
+    </g>
+    <text x="156" y="119" font-size="36" font-weight="700" fill="#f3f5f6">Signal Studio</text>
+    <text x="490" y="113" font-size="19" fill="#71c8ac">ARRANGEMENT</text>
+    <text x="690" y="113" font-size="19" fill="#9aa5ae">MIXER</text>
+    <text x="792" y="113" font-size="19" fill="#9aa5ae">LIBRARY</text>
+    <path d="M490 146H639" stroke="#71c8ac" stroke-width="3"/>
+    <circle cx="1683" cy="107" r="4" fill="#71c8ac"/>
+    <text x="1700" y="113" font-size="18" fill="#9aa5ae">All changes saved</text>
+    <text x="92" y="202" font-size="28" font-weight="700" fill="#f3f5f6">Glasshouse</text>
+    <text x="266" y="201" font-size="18" fill="#9aa5ae">/ SESSION 04</text>
+    <text x="500" y="201" font-size="18" fill="#9aa5ae">8 tracks</text>
+    <text x="617" y="201" font-size="18" fill="#9aa5ae">48 kHz / 24-bit</text>
+    <text x="92" y="277" font-size="15" font-weight="700" fill="#9aa5ae">TRACK</text>
+    <text x="1704" y="201" font-size="18" fill="#9aa5ae">Stereo output</text>
+  </g>
+  <rect x="350" y="300" width="1136" height="400" fill="#22272d"/>
+  <path d="M350 350H1486M350 450H1486M350 550H1486M350 650H1486" stroke="#262e35" stroke-width="49"/>
+  <rect x="350" y="300" width="1136" height="400" fill="url(#bars)"/>
+  <path d="M334 254V700M1505 254V700" stroke="#353c44"/>
+  <path d="M350 289V280M421 289V284M492 289V280M563 289V284M634 289V280M705 289V284M776 289V280M847 289V284M918 289V280M989 289V284M1060 289V280M1131 289V284M1202 289V280M1273 289V284M1344 289V280M1415 289V284M1486 289V280" stroke="#8a959f"/>
+  <g font-family="monospace" font-size="17" fill="#9aa5ae">
+    <text x="350" y="273">1</text><text x="492" y="273">3</text><text x="634" y="273">5</text><text x="776" y="273">7</text>
+    <text x="918" y="273">9</text><text x="1060" y="273">11</text><text x="1202" y="273">13</text><text x="1344" y="273">15</text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#e4e9ed">
+    <rect x="92" y="304" width="4" height="42" rx="2" fill="#ef8e7f"/>
+    <text x="110" y="330" fill="#9aa5ae" font-size="14">01</text><text x="139" y="330">Kick Drum</text><use href="#track-controls" x="270" y="314"/>
+    <rect x="92" y="354" width="4" height="42" rx="2" fill="#e5c86d"/>
+    <text x="110" y="380" fill="#9aa5ae" font-size="14">02</text><text x="139" y="380">Snare / Clap</text><use href="#track-controls" x="270" y="364"/>
+    <rect x="92" y="404" width="4" height="42" rx="2" fill="#8abff0"/>
+    <text x="110" y="430" fill="#9aa5ae" font-size="14">03</text><text x="139" y="430">Hi-hats</text><use href="#track-controls" x="270" y="414"/>
+    <rect x="92" y="454" width="4" height="42" rx="2" fill="#71c8ac"/>
+    <text x="110" y="480" fill="#9aa5ae" font-size="14">04</text><text x="139" y="480">Sub Bass</text><use href="#track-controls" x="270" y="464"/>
+    <rect x="92" y="504" width="4" height="42" rx="2" fill="#bbaddb"/>
+    <text x="110" y="530" fill="#9aa5ae" font-size="14">05</text><text x="139" y="530">Analog Keys</text><use href="#track-controls" x="270" y="514"/>
+    <rect x="92" y="554" width="4" height="42" rx="2" fill="#8abff0"/>
+    <text x="110" y="580" fill="#9aa5ae" font-size="14">06</text><text x="139" y="580">Glass Lead</text><use href="#track-controls" x="270" y="564"/>
+    <rect x="92" y="604" width="4" height="42" rx="2" fill="#e5c86d"/>
+    <text x="110" y="630" fill="#9aa5ae" font-size="14">07</text><text x="139" y="630">Air Texture</text><use href="#track-controls" x="270" y="614"/>
+    <rect x="92" y="654" width="4" height="42" rx="2" fill="#ef8e7f"/>
+    <text x="110" y="680" fill="#9aa5ae" font-size="14">08</text><text x="139" y="680">Vocal Chops</text><use href="#track-controls" x="270" y="664"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#9aa5ae">
+    <text x="92" y="753" font-size="15" font-weight="700">CHANNEL STRIPS</text>
+    <text x="1685" y="753" font-size="15">MASTER / -1.0 dB</text>
+    <text x="92" y="975" font-size="16">Glasshouse</text><text x="254" y="975" font-size="16">D minor</text>
+    <text x="372" y="975" font-size="16">124 BPM</text><text x="502" y="975" font-size="16">4 / 4</text>
+    <text x="1642" y="975" font-size="16">CPU 12%</text><text x="1750" y="975" font-size="16">I/O 4.2 ms</text>
+  </g>
+</svg>

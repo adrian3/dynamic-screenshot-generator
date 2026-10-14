@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
-  <title>Chess atlas: candidate move geometry</title>
+  <title>Eugene Chess: candidate move geometry</title>
   <defs>
     <marker id="mint-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1L10 6 1 11" fill="none" stroke="#a0e3cc" stroke-width="2"/></marker>
     <marker id="coral-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1L10 6 1 11" fill="none" stroke="#f69f82" stroke-width="2"/></marker>

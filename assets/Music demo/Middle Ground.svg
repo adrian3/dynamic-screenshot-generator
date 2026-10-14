@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Signal Studio: waveforms and MIDI clips</title>
+  <defs>
+    <pattern id="kick" x="354" y="304" width="71" height="50" patternUnits="userSpaceOnUse">
+      <path d="M5 28H8L10 15L13 39L16 17L19 37L22 22L25 33L28 24L31 31L34 26L37 30L40 27L43 29H66" stroke="#f7b3a8" stroke-width="1.6"/>
+    </pattern>
+    <pattern id="snare" x="354" y="354" width="142" height="50" patternUnits="userSpaceOnUse">
+      <path d="M0 28H61L63 23L65 33L67 17L69 38L71 15L73 40L75 19L77 35L79 22L81 33L83 24L85 31L87 26L90 29H142" stroke="#f1dea3" stroke-width="1.4"/>
+    </pattern>
+    <pattern id="hat" x="354" y="404" width="35.5" height="50" patternUnits="userSpaceOnUse">
+      <path d="M2 28H5L6 21L7 35L8 23L9 32L10 25L12 30H21L22 24L23 32L24 26L26 29H34" stroke="#c1ddf7" stroke-width="1.3"/>
+    </pattern>
+    <pattern id="bass" x="354" y="454" width="284" height="50" patternUnits="userSpaceOnUse">
+      <path d="M0 21H284M0 28H284M0 35H284" stroke="#a5e0ca" stroke-opacity=".1"/>
+      <path d="M7 34H42M48 34H66M78 28H132M150 34H190M204 24H227M236 28H276" stroke="#a5e0ca" stroke-width="4" stroke-linecap="round"/>
+    </pattern>
+    <pattern id="keys" x="354" y="504" width="284" height="50" patternUnits="userSpaceOnUse">
+      <path d="M0 21H284M0 28H284M0 35H284M0 42H284" stroke="#d8ccee" stroke-opacity=".1"/>
+      <path d="M7 22H66M7 29H66M7 36H66M78 25H132M78 32H132M78 39H132M149 20H204M149 27H204M149 34H204M220 24H276M220 31H276M220 38H276" stroke="#d8ccee" stroke-width="3" stroke-linecap="round"/>
+    </pattern>
+    <pattern id="lead" x="354" y="554" width="284" height="50" patternUnits="userSpaceOnUse">
+      <path d="M0 21H284M0 28H284M0 35H284" stroke="#c1ddf7" stroke-opacity=".1"/>
+      <path d="M7 35H27M35 30H62M78 25H104M115 19H132M149 25H174M184 30H211M224 22H239M248 25H276" stroke="#c1ddf7" stroke-width="4" stroke-linecap="round"/>
+    </pattern>
+    <pattern id="air" x="354" y="604" width="284" height="50" patternUnits="userSpaceOnUse">
+      <path d="M0 28L8 27L12 30L16 24L20 32L24 25L28 33L32 22L36 34L40 24L44 32L48 20L52 36L56 22L60 32L64 19L68 37L72 22L76 34L80 18L84 38L88 22L92 34L96 21L100 36L104 22L108 34L112 24L116 32L120 23L124 34L128 22L132 33L136 25L140 31L144 24L148 33L152 22L156 34L160 21L164 36L168 23L172 33L176 22L180 34L184 24L188 33L192 21L196 35L200 24L204 32L208 25L212 32L216 23L220 33L224 24L228 32L232 25L236 31L240 26L244 30L248 27L252 29L260 28H284" stroke="#f1dea3" stroke-width="1.3"/>
+    </pattern>
+    <pattern id="vocal" x="354" y="654" width="142" height="50" patternUnits="userSpaceOnUse">
+      <path d="M2 28H10L13 26L16 30L19 21L22 35L25 17L28 39L31 20L34 36L37 22L40 34L43 19L46 37L49 21L52 34L55 24L58 31L61 26L64 29H78L81 24L84 32L87 18L90 37L93 21L96 33L99 23L102 31L105 25L108 30L111 27H140" stroke="#f7b3a8" stroke-width="1.5"/>
+    </pattern>
+  </defs>
+  <path d="M634 292H1202" stroke="#71c8ac" stroke-width="5"/>
+  <path d="M634 287V297M1202 287V297" stroke="#71c8ac" stroke-width="2"/>
+  <g stroke="#ef8e7f" stroke-opacity=".65">
+    <rect x="354" y="304" width="1128" height="42" rx="3" fill="#ef8e7f" fill-opacity=".2"/>
+    <rect x="354" y="304" width="1128" height="42" rx="3" fill="url(#kick)" stroke="none"/>
+    <rect x="922" y="654" width="274" height="42" rx="3" fill="#ef8e7f" fill-opacity=".22"/>
+    <rect x="922" y="654" width="274" height="42" rx="3" fill="url(#vocal)" stroke="none"/>
+    <rect x="1206" y="654" width="274" height="42" rx="3" fill="#ef8e7f" fill-opacity=".22"/>
+    <rect x="1206" y="654" width="274" height="42" rx="3" fill="url(#vocal)" stroke="none"/>
+  </g>
+  <g stroke="#e5c86d" stroke-opacity=".65">
+    <rect x="638" y="354" width="558" height="42" rx="3" fill="#e5c86d" fill-opacity=".16"/>
+    <rect x="638" y="354" width="558" height="42" rx="3" fill="url(#snare)" stroke="none"/>
+    <rect x="1206" y="354" width="274" height="42" rx="3" fill="#e5c86d" fill-opacity=".16"/>
+    <rect x="1206" y="354" width="274" height="42" rx="3" fill="url(#snare)" stroke="none"/>
+    <rect x="354" y="604" width="558" height="42" rx="3" fill="#e5c86d" fill-opacity=".16"/>
+    <rect x="354" y="604" width="558" height="42" rx="3" fill="url(#air)" stroke="none"/>
+    <rect x="1206" y="604" width="274" height="42" rx="3" fill="#e5c86d" fill-opacity=".16"/>
+    <rect x="1206" y="604" width="274" height="42" rx="3" fill="url(#air)" stroke="none"/>
+  </g>
+  <g stroke="#8abff0" stroke-opacity=".65">
+    <rect x="496" y="404" width="700" height="42" rx="3" fill="#8abff0" fill-opacity=".17"/>
+    <rect x="496" y="404" width="700" height="42" rx="3" fill="url(#hat)" stroke="none"/>
+    <rect x="1206" y="404" width="274" height="42" rx="3" fill="#8abff0" fill-opacity=".17"/>
+    <rect x="1206" y="404" width="274" height="42" rx="3" fill="url(#hat)" stroke="none"/>
+    <rect x="638" y="554" width="558" height="42" rx="3" fill="#8abff0" fill-opacity=".17"/>
+    <rect x="638" y="554" width="558" height="42" rx="3" fill="url(#lead)" stroke="none"/>
+    <rect x="1206" y="554" width="274" height="42" rx="3" fill="#8abff0" fill-opacity=".17"/>
+    <rect x="1206" y="554" width="274" height="42" rx="3" fill="url(#lead)" stroke="none"/>
+  </g>
+  <g stroke="#71c8ac" stroke-opacity=".7">
+    <rect x="354" y="454" width="558" height="42" rx="3" fill="#71c8ac" fill-opacity=".17"/>
+    <rect x="354" y="454" width="558" height="42" rx="3" fill="url(#bass)" stroke="none"/>
+    <rect x="922" y="454" width="558" height="42" rx="3" fill="#71c8ac" fill-opacity=".17"/>
+    <rect x="922" y="454" width="558" height="42" rx="3" fill="url(#bass)" stroke="none"/>
+  </g>
+  <g stroke="#bbaddb" stroke-opacity=".65">
+    <rect x="354" y="504" width="274" height="42" rx="3" fill="#bbaddb" fill-opacity=".17"/>
+    <rect x="354" y="504" width="274" height="42" rx="3" fill="url(#keys)" stroke="none"/>
+    <rect x="638" y="504" width="558" height="42" rx="3" fill="#bbaddb" fill-opacity=".17"/>
+    <rect x="638" y="504" width="558" height="42" rx="3" fill="url(#keys)" stroke="none"/>
+    <rect x="1206" y="504" width="274" height="42" rx="3" fill="#bbaddb" fill-opacity=".17"/>
+    <rect x="1206" y="504" width="274" height="42" rx="3" fill="url(#keys)" stroke="none"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#e4e9ed">
+    <text x="363" y="318">Kick / Four on the floor</text>
+    <text x="647" y="368">Snare + room</text><text x="1215" y="368">Snare fill</text>
+    <text x="505" y="418">Closed hats / 16ths</text><text x="1215" y="418">Open hats</text>
+    <text x="363" y="468">Sub / D1</text><text x="931" y="468">Sub / variation</text>
+    <text x="363" y="518">Dm9</text><text x="647" y="518">Dm9 / Bbmaj7 / Fadd9 / Csus2</text><text x="1215" y="518">Dm9 / reprise</text>
+    <text x="647" y="568">Glass / motif A</text><text x="1215" y="568">Glass / motif B</text>
+    <text x="363" y="618">Air / granular texture</text><text x="1215" y="618">Air / tail</text>
+    <text x="931" y="668">Vocal / take 03</text><text x="1215" y="668">Vocal / reverse</text>
+  </g>
+</svg>

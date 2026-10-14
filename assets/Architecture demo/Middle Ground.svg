@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Architecture Studio: structure, glazing, and furniture</title>
+  <defs>
+    <g id="tree-plan" stroke="#74927a" stroke-width="1.4">
+      <circle r="23" fill="#d8e7db" fill-opacity=".8"/>
+      <path d="M-14 -2C-23 -18 -1 -26 2 -12C11 -24 26 -7 13 2C25 15 2 25 -3 13C-21 25 -26 4 -14 -2Z"/>
+      <path d="M-14 -2L0 0L2 -12M13 2L0 0L-3 13"/>
+      <circle r="2" fill="#74927a"/>
+    </g>
+    <g id="dining-chair" stroke="#7a9098" fill="#f1f5f6">
+      <rect x="-13" y="-10" width="26" height="20" rx="4"/>
+      <path d="M-12 -5H12"/>
+    </g>
+  </defs>
+  <g stroke="#b7c6cb" stroke-width="1" stroke-dasharray="8 5 2 5">
+    <path d="M470 326V894M780 326V894M1020 326V894M1350 326V894M425 350H1404M425 580H1404M425 810H1404"/>
+  </g>
+  <g fill="#fff" stroke="#a5b8bf">
+    <circle cx="470" cy="898" r="11"/><circle cx="780" cy="898" r="11"/><circle cx="1020" cy="898" r="11"/><circle cx="1350" cy="898" r="11"/>
+    <circle cx="410" cy="350" r="11"/><circle cx="410" cy="580" r="11"/><circle cx="410" cy="810" r="11"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#72858c">
+    <text x="470" y="902">1</text><text x="780" y="902">2</text><text x="1020" y="902">3</text><text x="1350" y="902">4</text>
+    <text x="410" y="354">A</text><text x="410" y="584">B</text><text x="410" y="814">C</text>
+  </g>
+  <g stroke="#31484f" stroke-width="8" stroke-linecap="square">
+    <path d="M470 350V810M470 350H525M650 350H890M970 350H1130M1300 350H1350V414M1350 690V810H1310M1140 810H926M862 810H650M525 810H470"/>
+    <path d="M780 350V398M780 446V590M780 638V810M470 580H678M730 580H780M1020 350V390M1020 440V450M1020 670V706M1020 756V810"/>
+  </g>
+  <g stroke="#6e9fab" stroke-width="1.6">
+    <path d="M525 347H650M525 350H650M525 353H650M587 347V353M890 347H970M890 350H970M890 353H970M930 347V353M1130 347H1300M1130 350H1300M1130 353H1300M1215 347V353"/>
+    <path d="M525 807H650M525 810H650M525 813H650M587 807V813M1140 807H1310M1140 810H1310M1140 813H1310M1225 807V813"/>
+    <path d="M1347 414V690M1350 414V690M1353 414V690M1347 506H1353M1347 598H1353"/>
+    <path d="M780 447H1020M780 450H1020M780 453H1020M860 447V453M940 447V453M1017 450V670M1020 450V670M1023 450V670M1017 523H1023M1017 597H1023M780 667H1020M780 670H1020M780 673H1020M860 667V673M940 667V673"/>
+  </g>
+  <g stroke="#7a9098" stroke-width="1.3">
+    <path d="M780 398H732M732 398A48 48 0 0 0 780 446M780 590H732M732 590A48 48 0 0 0 780 638M678 580V632M678 632A52 52 0 0 0 730 580M1020 390H1070M1070 390A50 50 0 0 1 1020 440M1020 706H1070M1070 706A50 50 0 0 1 1020 756M862 810V746M862 746A64 64 0 0 1 926 810"/>
+  </g>
+  <g fill="#31484f">
+    <rect x="462" y="342" width="16" height="16"/><rect x="772" y="342" width="16" height="16"/>
+    <rect x="1012" y="342" width="16" height="16"/><rect x="1342" y="342" width="16" height="16"/>
+    <rect x="462" y="572" width="16" height="16"/><rect x="1342" y="572" width="16" height="16"/>
+    <rect x="462" y="802" width="16" height="16"/><rect x="772" y="802" width="16" height="16"/>
+    <rect x="1012" y="802" width="16" height="16"/><rect x="1342" y="802" width="16" height="16"/>
+  </g>
+  <g stroke="#7a9098" stroke-width="1.3" fill="#eef3f5">
+    <rect x="558" y="375" width="122" height="116" rx="2"/>
+    <rect x="565" y="382" width="49" height="28" rx="3" fill="#fff"/>
+    <rect x="624" y="382" width="49" height="28" rx="3" fill="#fff"/>
+    <path d="M558 419H680M565 425V484H673V425"/>
+    <rect x="523" y="379" width="24" height="30"/><rect x="691" y="379" width="24" height="30"/>
+    <rect x="495" y="433" width="29" height="102"/>
+    <path d="M495 467H524M495 501H524"/>
+    <rect x="554" y="624" width="142" height="82" rx="2"/>
+    <rect x="568" y="635" width="92" height="58" fill="#fff"/>
+    <path d="M578 644H650V683H578ZM578 667H632V683M620 644V667M670 642L679 677"/>
+    <rect x="601" y="714" width="45" height="28" rx="6"/>
+    <rect x="493" y="603" width="32" height="119"/><path d="M493 643H525M493 683H525"/>
+    <rect x="814" y="425" width="115" height="16" rx="2"/>
+    <rect x="1070" y="420" width="188" height="76" rx="6"/>
+    <rect x="1070" y="420" width="18" height="76" rx="3"/><rect x="1240" y="420" width="18" height="76" rx="3"/>
+    <path d="M1088 437H1240M1138 438V489M1189 438V489"/>
+    <rect x="1120" y="527" width="121" height="56" rx="6" fill="#fff"/>
+    <circle cx="1150" cy="551" r="8"/><rect x="1180" y="544" width="35" height="20"/>
+    <rect x="1295" y="438" width="29" height="165"/><path d="M1295 458H1324M1295 583H1324"/>
+    <rect x="1155" y="721" width="130" height="50" rx="20" fill="#fff"/>
+    <use href="#dining-chair" x="1185" y="705"/><use href="#dining-chair" x="1255" y="705"/>
+    <use href="#dining-chair" x="1185" y="787"/><use href="#dining-chair" x="1255" y="787"/>
+    <path d="M798 688H1004V719H832V752H798Z"/>
+    <rect x="808" y="694" width="44" height="22" fill="#fff"/>
+    <circle cx="819" cy="701" r="3"/><circle cx="839" cy="701" r="3"/><circle cx="819" cy="710" r="3"/><circle cx="839" cy="710" r="3"/>
+    <rect x="946" y="694" width="34" height="19" rx="2" fill="#fff"/>
+  </g>
+  <use href="#tree-plan" x="830" y="499"/><use href="#tree-plan" x="967" y="620"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <path d="M1530 467H1838" stroke="#d4dde1"/>
+    <text x="1530" y="497" font-size="13" font-weight="700" fill="#72858c">MATERIAL SCHEDULE</text>
+    <rect x="1530" y="514" width="26" height="22" rx="2" fill="#d4dde1" stroke="#a7bac1"/>
+    <text x="1570" y="531" font-size="15" fill="#526971">M01 / Concrete floor</text>
+    <rect x="1530" y="551" width="26" height="22" rx="2" fill="#bdd9df" stroke="#6e9fab"/>
+    <text x="1570" y="568" font-size="15" fill="#526971">M02 / Low-e glazing</text>
+    <rect x="1530" y="588" width="26" height="22" rx="2" fill="#d8e7db" stroke="#74927a"/>
+    <text x="1570" y="605" font-size="15" fill="#526971">M03 / Planted courtyard</text>
+  </g>
+</svg>

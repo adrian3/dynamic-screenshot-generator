@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Signal Studio: transport and selected clip</title>
+  <rect x="916" y="164" width="710" height="62" rx="4" fill="#2c333b" stroke="#61707b"/>
+  <path d="M1137 178V212M1328 178V212M1450 178V212M1535 178V212" stroke="#52606a"/>
+  <rect x="933" y="175" width="39" height="40" rx="3" fill="#71c8ac"/>
+  <path d="M946 185L946 205L962 195Z" fill="#15241f"/>
+  <rect x="987" y="188" width="14" height="14" rx="1" fill="#b6c0c8"/>
+  <circle cx="1028" cy="195" r="8" fill="#ef8e7f"/>
+  <path d="M1061 190H1090L1084 184M1090 200H1061L1067 206" stroke="#71c8ac" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <g font-family="monospace" fill="#f3f5f6">
+    <text x="1153" y="205" font-size="29">11.2.04</text>
+    <text x="1347" y="202" font-size="24">124.0</text>
+    <text x="1468" y="202" font-size="24">4/4</text>
+    <text x="1553" y="202" font-size="20">Dm</text>
+  </g>
+  <path d="M1060 300V700" stroke="#f3f5f6" stroke-width="2" stroke-opacity=".75"/>
+  <path d="M1051 281H1069V291L1060 300L1051 291Z" fill="#f3f5f6"/>
+  <rect x="638" y="554" width="558" height="42" rx="3" stroke="#c1ddf7" stroke-width="2"/>
+  <g fill="#c1ddf7"><rect x="635" y="568" width="6" height="14" rx="1"/><rect x="1193" y="568" width="6" height="14" rx="1"/></g>
+  <rect x="1017" y="610" width="322" height="90" rx="4" fill="#303943" stroke="#718696"/>
+  <path d="M1080 610L1091 601L1102 610" fill="#303943" stroke="#718696" stroke-linejoin="round"/>
+  <path d="M1041 633V654M1048 628V659M1055 635V652" stroke="#8abff0" stroke-width="2" stroke-linecap="round"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="1068" y="641" font-size="17" font-weight="700" fill="#f3f5f6">Glass / motif A</text>
+    <text x="1068" y="662" font-size="13" fill="#b6c0c8">16 notes / D minor</text>
+    <text x="1040" y="685" font-size="12" fill="#8abff0">1/16 GRID</text>
+    <text x="1168" y="685" font-size="12" fill="#b6c0c8">VELOCITY 92</text>
+  </g>
+</svg>

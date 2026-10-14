@@ -10,7 +10,3 @@
 exports/
 tmp/
 *.tmp
-
-# Private screenshot layer assets. Replace with generic/public-safe SVGs before publishing.
-assets/v2/*.svg
-assets/New Folder With Items/*.svg

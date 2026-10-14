@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Signal Studio: mixer and channel equalizer</title>
+  <defs>
+    <pattern id="frequency-grid" x="1546" y="333" width="67" height="40" patternUnits="userSpaceOnUse">
+      <path d="M67 0H0V40" stroke="#8a959f" stroke-opacity=".16"/>
+    </pattern>
+    <g id="channel">
+      <rect width="164" height="158" rx="3" fill="#22272d" stroke="#353c44"/>
+      <path d="M1 1H163" stroke="currentColor" stroke-width="3"/>
+      <path d="M18 57H59M18 84H59" stroke="#4b555e"/>
+      <g font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#9aa5ae">
+        <text x="18" y="51">EQ</text><text x="18" y="78">COMP</text><text x="18" y="106">SENDS</text>
+        <text x="18" y="127">M</text><text x="45" y="127">S</text>
+      </g>
+      <circle cx="85" cy="28" r="8" fill="#30373e" stroke="#6c7883"/>
+      <path d="M85 20V26" stroke="currentColor" stroke-width="2"/>
+      <path d="M77 121V52M88 121V60" stroke="currentColor" stroke-width="6" stroke-dasharray="3 3"/>
+      <path d="M130 49V128" stroke="#101317" stroke-width="5" stroke-linecap="round"/>
+      <path d="M149 49H153M149 68H153M149 88H153M149 108H153M149 128H153" stroke="#59656f"/>
+    </g>
+  </defs>
+  <rect x="1524" y="254" width="310" height="446" rx="4" fill="#22272d" stroke="#48535d"/>
+  <path d="M1524 299H1834" stroke="#353c44"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <circle cx="1546" cy="277" r="4" fill="#71c8ac"/>
+    <text x="1560" y="283" font-size="16" font-weight="700" fill="#e4e9ed">CHANNEL EQ</text>
+    <path d="M1809 271V283M1803 277H1815" stroke="#9aa5ae" stroke-width="2"/>
+    <text x="1546" y="322" font-size="13" fill="#bbaddb">05 / ANALOG KEYS</text>
+  </g>
+  <rect x="1546" y="333" width="266" height="160" rx="2" fill="#191d22"/>
+  <rect x="1546" y="333" width="266" height="160" fill="url(#frequency-grid)"/>
+  <path d="M1546 413H1812" stroke="#9aa5ae" stroke-opacity=".3" stroke-dasharray="3 4"/>
+  <path d="M1546 480L1551 477L1557 469L1562 474L1568 451L1573 462L1578 426L1583 447L1588 411L1593 420L1598 390L1603 409L1608 370L1613 386L1618 361L1623 380L1628 372L1633 399L1638 386L1643 414L1648 400L1653 427L1658 414L1663 435L1668 420L1673 429L1678 402L1683 417L1688 394L1693 418L1698 407L1703 428L1708 420L1713 441L1718 432L1723 446L1728 434L1733 421L1738 436L1743 427L1748 448L1753 436L1758 450L1763 443L1768 457L1773 444L1778 453L1783 449L1788 463L1793 455L1798 468L1803 461L1812 474V493H1546Z" fill="#e5c86d" fill-opacity=".18"/>
+  <path d="M1546 475C1565 475 1570 425 1590 415C1610 405 1622 398 1641 399C1660 400 1663 413 1680 413C1700 413 1712 388 1732 388C1752 388 1759 410 1780 413H1812" stroke="#71c8ac" stroke-width="2.5"/>
+  <g fill="#71c8ac" stroke="#191d22" stroke-width="2">
+    <circle cx="1590" cy="415" r="5"/><circle cx="1641" cy="399" r="5"/><circle cx="1732" cy="388" r="5"/><circle cx="1780" cy="413" r="5"/>
+  </g>
+  <g font-family="monospace" font-size="11" fill="#9aa5ae">
+    <text x="1546" y="511">20</text><text x="1612" y="511">200</text><text x="1680" y="511">2k</text><text x="1787" y="511">20k</text>
+  </g>
+  <g fill="#30373e" stroke="#59656f" stroke-width="2">
+    <circle cx="1583" cy="553" r="20"/><circle cx="1679" cy="553" r="20"/><circle cx="1775" cy="553" r="20"/>
+  </g>
+  <g stroke="#71c8ac" stroke-width="3" stroke-linecap="round">
+    <path d="M1583 536V545M1679 536V545M1787 540L1781 546"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <g font-size="12" fill="#9aa5ae"><text x="1583" y="590">FREQUENCY</text><text x="1679" y="590">GAIN</text><text x="1775" y="590">WIDTH</text></g>
+    <g font-size="18" fill="#e4e9ed"><text x="1583" y="615">2.4 kHz</text><text x="1679" y="615">+2.8 dB</text><text x="1775" y="615">0.71 Q</text></g>
+  </g>
+  <path d="M1546 635H1812" stroke="#353c44"/>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#9aa5ae">
+    <text x="1546" y="661">ANALYZER</text><text x="1743" y="661" fill="#71c8ac">POST EQ</text>
+    <text x="1546" y="682">Natural phase</text><text x="1747" y="682">24 dB/oct</text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#e4e9ed">
+    <g transform="translate(92 778)" color="#ef8e7f"><use href="#channel"/><text x="13" y="25">Kick</text><rect x="120" y="70" width="20" height="9" rx="1" fill="#ccd3d8"/><text x="112" y="147">-4.2</text></g>
+    <g transform="translate(265 778)" color="#e5c86d"><use href="#channel"/><text x="13" y="25">Snare</text><rect x="120" y="81" width="20" height="9" rx="1" fill="#ccd3d8"/><text x="112" y="147">-6.8</text></g>
+    <g transform="translate(438 778)" color="#8abff0"><use href="#channel"/><text x="13" y="25">Hats</text><rect x="120" y="100" width="20" height="9" rx="1" fill="#ccd3d8"/><text x="109" y="147">-12.0</text></g>
+    <g transform="translate(611 778)" color="#71c8ac"><use href="#channel"/><text x="13" y="25">Bass</text><rect x="120" y="77" width="20" height="9" rx="1" fill="#ccd3d8"/><text x="112" y="147">-5.4</text></g>
+    <g transform="translate(784 778)" color="#bbaddb"><use href="#channel"/><text x="13" y="25">Keys</text><rect x="120" y="88" width="20" height="9" rx="1" fill="#ccd3d8"/><text x="112" y="147">-8.6</text></g>
+    <g transform="translate(957 778)" color="#8abff0"><use href="#channel"/><text x="13" y="25">Lead</text><rect x="120" y="91" width="20" height="9" rx="1" fill="#ccd3d8"/><text x="112" y="147">-9.0</text></g>
+    <g transform="translate(1130 778)" color="#e5c86d"><use href="#channel"/><text x="13" y="25">Air</text><rect x="120" y="109" width="20" height="9" rx="1" fill="#ccd3d8"/><text x="109" y="147">-16.2</text></g>
+    <g transform="translate(1303 778)" color="#ef8e7f"><use href="#channel"/><text x="13" y="25">Vocal</text><rect x="120" y="85" width="20" height="9" rx="1" fill="#ccd3d8"/><text x="112" y="147">-7.4</text></g>
+  </g>
+  <rect x="1524" y="778" width="310" height="158" rx="4" fill="#22272d" stroke="#48535d"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="1546" y="806" font-size="15" font-weight="700" fill="#e4e9ed">MASTER BUS</text>
+    <text x="1546" y="833" font-size="12" fill="#9aa5ae">GLUE COMPRESSOR</text>
+    <text x="1546" y="856" font-size="12" fill="#9aa5ae">TRUE PEAK LIMITER</text>
+    <text x="1546" y="884" font-size="22" fill="#e4e9ed">-11.2 <tspan font-size="12" fill="#9aa5ae">LUFS</tspan></text>
+    <text x="1546" y="916" font-size="12" fill="#71c8ac">-1.0 dBTP</text>
+  </g>
+  <path d="M1777 913V827M1795 913V834" stroke="#71c8ac" stroke-width="10" stroke-dasharray="4 3"/>
+  <path d="M1777 822V809M1795 829V816" stroke="#e5c86d" stroke-width="10" stroke-dasharray="4 3"/>
+</svg>

@@ -1,113 +1,63 @@
 # Living Screenshots
 
-A lightweight static tool for composing layered SVG screenshots into a subtle 3D “living screenshot” hero image. It uses plain HTML, CSS, and browser JavaScript. There is no build step.
+A static Three.js scene editor for layered SVG screenshots hovering above an unbranded 3D laptop. No compilation or build step is needed. The laptop is generated from geometry rather than a photographic image or downloaded model.
 
-[Live GitHub Pages demo](https://adrian3.github.io/dynamic-screenshot-generator/)
+[GitHub Pages](https://adrian3.github.io/dynamic-screenshot-generator/)
 
-## What It Does
+## Checkpoint
 
-- Layers four SVG files into a CSS 3D stack.
-- Lets you tune scene rotation, layer offsets, depth, motion, background, and display image placement.
-- Supports laptop dark, laptop light, and monitor display backgrounds.
-- Can mirror only the display image while leaving the screenshot layers unchanged.
-- Lets you choose a screen color for either laptop or the monitor, using their transparent-screen PNG variants.
-- Persists local control values in `localStorage`.
-- Exports the current frame as a transparent PNG when served over `http://` or `https://`.
+The previous CSS editor, including both demos and the photographic display color controls, is preserved in commit `7b4c960` and the Git tag `css-editor-checkpoint`. That checkpoint has been pushed to GitHub.
 
-## Chess Showcase
+The 3D editor stores settings under `living-screenshots-3d-state-v1`. CSS poses are not automatically converted to 3D camera positions. Reset App, available in the toolbar and Settings, clears the site's local storage (including legacy CSS settings) and restores all defaults.
 
-The default example is a four-layer chess blueprint in `assets/Chess Demo/`. Each SVG uses the original screenshot dimensions: `1920 x 1037`.
+## Scene
 
-- `Background.svg`: drafting grid, chessboard, coordinates, and title block.
-- `Middle Ground.svg`: a Ruy Lopez position and a knight construction drawing.
-- `Middle Foreground.svg`: candidate moves, diagonal geometry, and central control.
-- `Foreground.svg`: position analysis and annotation callouts.
+- Procedural laptop with beveled aluminum casing, keyboard, trackpad, speakers, hinge, webcam, and generic ports. There are no logos or branding.
+- Space Gray and Silver finishes, plus a custom body color and screen color.
+- Four SVG planes attached to the display. At zero Z Depth, they register on the screen; increased depth lifts them along its normal.
+- Camera rotation, scale, perspective, lid angle, and individual layer controls.
+- Front-only camera orbit: azimuth is constrained to -90 through +90 degrees. Elevation ranges from a horizon-level 0 degrees through 70 degrees above the scene.
+- Subtle camera animation moves the complete composition. Play and pause retain the current animation phase.
+- Mouse and touch orbit and zoom, local saved settings, and reduced-motion support.
+- CSS and image export controls have been removed. Monitor support is deferred.
 
-The transparent upper sheets use the existing CSS 3D transforms and pivot animation. Z Depth controls their separation; at zero depth the default sheets register as a single composition. These are original SVG drawings with no external fonts, libraries, or proprietary screenshots. Existing saved control values are preserved; Reset App loads the new showcase arrangement.
+The renderer uses studio environment lighting, metal/roughness materials, and contact shadows. SVG panels use unlit textures so their interface colors remain consistent. The original SVG files remain the editable source assets; rendering converts them to textures up to 1920 pixels wide, or 1280 on narrow screens.
 
-## Dashboard Showcase
+## Running
 
-Select `Dashboard demo` in the Folder dropdown to load **Application Observability**, a fictional infrastructure dashboard with synthetic data. Its four SVGs in `assets/Dashboard demo/` use the same `1920 x 1037` dimensions and registered layer arrangement:
-
-- `Background.svg`: application navigation, workspace header, and dashboard containers.
-- `Middle Ground.svg`: request throughput, CPU and memory utilization, and host heatmap.
-- `Middle Foreground.svg`: live metric summaries and a dense service health table.
-- `Foreground.svg`: a latency event annotation and active infrastructure incidents.
-
-Switching examples preserves scene orientation, motion, and layer offsets. The old `chess` selection automatically becomes `Chess Demo` without resetting saved settings.
-
-## Display Screen Color
-
-The Screen color swatch beside Mirror Display changes the computer screen's color and saves it with the other controls. A fitted SVG polygon sits behind the transparent opening in the PNG. The polygon and device share one container, so position, scale, opacity, visibility, and mirroring apply together. The two laptops use the same screen outline; the monitor has its own.
-
-All three device PNGs use `1536 x 1024` coordinates. The fill points are:
-
-- Laptops: `(575,185) (1302,136) (1248,724) (523,689)`.
-- Monitor: `(565,204) (1284,143) (1251,701) (525,664)`.
-
-The outlines cover the transparent screen with a small margin inside the opaque bezel. PNG export composites the fill with the device before applying opacity and mirroring, preserving transparency outside the computer.
-
-## Running Locally
-
-The app should be opened through a local web server rather than directly as a `file://` page, because PNG export and asset loading rely on browser fetch behavior.
-
-On macOS, double-click:
-
-```text
-Start Living Screenshots.command
-```
-
-Or run a simple server from the project folder:
+Double-click `Start Living Screenshots.command` on macOS, or serve this folder:
 
 ```sh
 python3 -m http.server 8787
 ```
 
-Then open:
+Open [the local app](http://127.0.0.1:8787/index.html). ES modules and asset loading require HTTP or HTTPS rather than `file://`.
 
-```text
-http://127.0.0.1:8787/index.html
-```
+GitHub Pages can serve the repository root directly. Runtime dependencies are included locally under `vendor/`, so the app does not depend on a CDN, package installation, or a build service.
 
-## GitHub Pages
+## Assets
 
-This project is ready to run as a static GitHub Pages site. Publish the repository root as the Pages source. No build command is required.
+The built-in examples are `assets/Dashboard demo/`, `assets/Chess Demo/` (Eugene Chess), `assets/Music demo/` (Signal Studio, a music production session), and `assets/Architecture demo/` (Architecture Studio, a courtyard-house plan with structural and environmental overlays). Each uses four SVGs with a 1920 x 1037 view box:
 
-Live site: https://adrian3.github.io/dynamic-screenshot-generator/
+- `Background.svg`
+- `Middle Ground.svg`
+- `Middle Foreground.svg`
+- `Foreground.svg`
 
-Recommended Pages setup:
+Each built-in demo has a matching laptop screen color. Screen-picker adjustments are saved separately for each demo; Reset App restores the original color presets.
 
-1. The public chess and dashboard SVG layers are included in the repository. Product-specific folders remain ignored by git.
-2. Keep the same four layer filenames in each asset folder when possible:
-   - `Background.svg`
-   - `Middle Ground.svg`
-   - `Middle Foreground.svg`
-   - `Foreground.svg`
-3. Push `index.html`, `assets/`, `.nojekyll`, and this README.
-4. In GitHub, enable Pages for the repository root or `/docs` if you later move the files there.
+Hosted pages, including GitHub Pages, show the built-in demo dropdown and hide Choose Folder and Rescan. Both controls remain in the markup and are shown automatically on `localhost`, `.localhost` subdomains, `127.0.0.1`, and IPv6 loopback (`::1`). Hosted mode also skips directory-listing requests.
 
-Both demo folders are registered in `builtInAssetSets`, so the complete examples work on GitHub Pages without directory listings.
+Local servers that expose directory listings can discover new folders automatically. Choose Folder reads local directories in browsers supporting the [File System Access API](https://developer.chrome.com/docs/capabilities/web-apis/file-system-access). The API can also work on HTTPS-hosted sites with user permission; hiding it in the public demo is a UI choice, not a GitHub Pages limitation. Register additional published examples with a screen color in `demoScreenColors` in `app.js`.
 
-### Important Privacy Note
+The product-specific legacy SVG folders have been removed. The old photographic device assets remain available in the repository checkpoint and are not loaded by the 3D renderer.
 
-The current local git history was created as a rollback point and may include product-specific screenshot assets. Do not push this local history to a public repository until those assets have been replaced or the public repository history has been rebuilt from a sanitized copy.
+## Files And Licenses
 
-A safe public workflow is:
+- `index.html`, `style.css`: editor interface.
+- `app.js`: scene, camera, layer loading, motion, controls, and saved state.
+- `laptop.js`: original procedural laptop geometry.
+- `icons.js`: selected Lucide icons; ISC license in `vendor/LUCIDE-LICENSE`.
+- `vendor/three/`: pinned Three.js 0.186.1 and required addons; MIT license included.
 
-1. Keep this local repository as your private rollback backup.
-2. Replace proprietary assets with generic assets.
-3. Copy the sanitized project into a fresh repository, or rewrite history before pushing.
-4. Review `assets/` before the first public push.
-
-## Adding Asset Folders
-
-The app includes built-in asset folders and also tries to discover SVG folders inside `assets/` when the host provides directory listings. Some static hosts do not expose directory listings. In that case, the built-in folders still work, and the “Choose Folder” button can load local folders in supported browsers.
-
-For GitHub Pages, the most reliable path is to replace the existing built-in folder contents or add new folders and wire them into `builtInAssetSets` in `index.html` if automatic discovery is not available.
-
-## Files
-
-- `index.html` - the complete app.
-- `assets/` - SVG layers and display background images.
-- `Start Living Screenshots.command` - local macOS launcher for a simple Python web server.
-- `.nojekyll` - tells GitHub Pages to serve files as-is.
+High resolution in Settings allows a device pixel ratio up to 2 instead of 1.5. Mobile layouts reduce the screenshot texture size. Paused scenes render only when controls or the viewport change.

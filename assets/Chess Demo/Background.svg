@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
-  <title>Chess atlas: board construction</title>
+  <title>Eugene Chess: board construction</title>
   <defs>
     <pattern id="draft" width="40" height="40" patternUnits="userSpaceOnUse">
       <path d="M40 0H0V40" stroke="#a0d5cc" stroke-opacity=".085"/>
@@ -17,7 +17,7 @@
     <path d="M100 162H1820M1060 192V903M100 917H1820" stroke-opacity=".3"/>
   </g>
   <g font-family="Arial, Helvetica, sans-serif">
-    <text x="112" y="135" font-size="56" font-weight="700" fill="#f0f3e9">CHESS ATLAS</text>
+    <text x="112" y="135" font-size="56" font-weight="700" fill="#f0f3e9">Eugene Chess</text>
     <text x="690" y="128" font-size="20" fill="#a0d5cc">POSITION STUDY / 003</text>
     <text x="1808" y="124" text-anchor="end" font-size="20" fill="#a0d5cc">RUY LOPEZ / C84</text>
   </g>
