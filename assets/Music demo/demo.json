@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "canvas": { "grid": false, "shadows": true, "background": 100, "panelCollapsed": false, "highQuality": false },
+  "device": "laptop",
+  "scene": { "perspective": 32, "rotateX": 12, "rotateY": -28, "rotateZ": 0, "scale": 1.12 },
+  "laptop": { "visible": true, "x": 0, "y": 0, "z": 0, "scale": 1, "lidAngle": 105, "finish": "gray", "bodyColor": "#4f5560", "screenColor": "#191d22" },
+  "desktop": { "visible": true, "x": 0, "y": 0, "z": 0, "scale": 1, "tilt": 7, "finish": "silver", "bodyColor": "#c4c7cc" },
+  "animation": { "enabled": true, "axis": "y", "angle": 4.5, "speed": 9000, "depth": 1.2, "time": 0 },
+  "layers": {
+    "background": { "file": "Background.svg", "x": 0, "y": 0, "z": 0, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "scale": 1, "opacity": 100 },
+    "middleground": { "file": "Middle Ground.svg", "x": 0, "y": 0, "z": 0.22, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "scale": 1, "opacity": 100 },
+    "middleForeground": { "file": "Middle Foreground.svg", "x": 0, "y": 0, "z": 0.44, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "scale": 1, "opacity": 100 },
+    "foreground": { "file": "Foreground.svg", "x": 0, "y": 0, "z": 0.66, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "scale": 1, "opacity": 100 }
+  }
+}

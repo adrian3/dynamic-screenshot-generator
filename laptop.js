@@ -34,21 +34,23 @@ export function createLaptop() {
   bottomGeometry.rotateX(-Math.PI/2);bottomGeometry.rotateZ(Math.PI);
   const bottomCover=new THREE.Mesh(bottomGeometry,aluminum);
   bottomCover.name='Bottom cover';bottomCover.position.y=.003;group.add(bottomCover);
-  box(group,2.91,.005,1.015,.002,black,0,.142-deckDrop,-.395);
+  const keyboardRecess=box(group,2.91,.005,1.015,.002,black,0,.142-deckDrop,-.395);keyboardRecess.name='Keyboard recess';
   const trackpadCarrier=horizontalShell(roundedOutline(1.23,.68,.05,.05,.625),.004,.001,black,.118-deckDrop);trackpadCarrier.name='Trackpad recess';group.add(trackpadCarrier);
   const trackpad=horizontalShell(roundedOutline(1.214,.664,.044,.044,.625),.012,.0015,trackpadMaterial,.125-deckDrop);trackpad.name='Trackpad';group.add(trackpad);
   box(group,.29,.014,.017,.006,black,0,.139-deckDrop,1.108);
 
-  const hinge=new THREE.Mesh(new THREE.CylinderGeometry(.056,.056,2.9,32),black);
+  const hinge=new THREE.Mesh(new THREE.CylinderGeometry(.042,.042,2.9,32),black);hinge.name='Laptop hinge';
   hinge.rotation.z=Math.PI/2;hinge.position.set(0,.187-deckDrop,-1.027);group.add(hinge);
   const lid=new THREE.Group();lid.name='Lid';lid.position.set(0,.187-deckDrop,-1.027);group.add(lid);
   const lidShell=displayShell(3.4,2.13,.03,.04,.16,.002,aluminum);lidShell.name='Lid shell';lidShell.position.y=1.065;lid.add(lidShell);
-  const bezel=displayShell(3.35,2.085,.006,.03,.14,.0008,black);bezel.position.set(0,1.07,.017);lid.add(bezel);
+  const bezel=displayShell(3.35,2.085,.006,.03,.14,.0008,black);bezel.name='Bezel';bezel.position.set(0,1.07,.017);lid.add(bezel);
   const screenAnchor=new THREE.Group();screenAnchor.name='Screen anchor';screenAnchor.position.set(0,1.075,.022);lid.add(screenAnchor);
   const screen=new THREE.Mesh(roundedPlane(SCREEN_WIDTH,SCREEN_HEIGHT,.035,.10),screenMaterial);
   screen.name='Screen';screenAnchor.add(screen);
   const lens=new THREE.Mesh(new THREE.CircleGeometry(.009,20),new THREE.MeshStandardMaterial({color:'#080d13',metalness:.75,roughness:.14}));
-  lens.position.set(0,2.071,.022);lid.add(lens);
+  bezel.geometry.computeBoundingBox();
+  const screenTop=screenAnchor.position.y+SCREEN_HEIGHT/2,bezelTop=bezel.position.y+bezel.geometry.boundingBox.max.y;
+  lens.name='Camera lens';lens.position.set(0,(screenTop+bezelTop)/2,.022);lid.add(lens);
 
   const rows=[
     [['esc',.23],...Array.from({length:12},(_,i)=>[`F${i+1}`,.177]),['',.177]],
@@ -58,25 +60,32 @@ export function createLaptop() {
     [['shift',.43],...['Z','X','C','V','B','N','M',',','.','/'].map(k=>[k,.177]),['shift',.42]],
     [['fn',.20],['ctrl',.20],['alt',.20],['cmd',.23],['',.96],['cmd',.23],['alt',.20],['<',.17],['^',.17],['>',.17]]
   ];
+  const keyGap=.022;
+  const rowWidth=row=>row.reduce((n,[,width])=>n+width,0)+(row.length-1)*keyGap;
+  // Keep the modifier row aligned with the Shift row without shrinking its keys.
+  rows.at(-1)[4][1]+=rowWidth(rows.at(-2))-rowWidth(rows.at(-1));
   const keyGeometry=new RoundedBoxGeometry(1,1,1,2,.14);
   const keyCount=rows.reduce((n,row)=>n+row.length,0);
-  const keys=new THREE.InstancedMesh(keyGeometry,keyMaterial,keyCount);keys.castShadow=true;keys.receiveShadow=true;group.add(keys);
+  const keys=new THREE.InstancedMesh(keyGeometry,keyMaterial,keyCount);keys.name='Keyboard keys';keys.castShadow=true;keys.receiveShadow=true;group.add(keys);
   const legendCanvas=document.createElement('canvas');legendCanvas.width=2048;legendCanvas.height=760;
   const context=legendCanvas.getContext('2d');context.fillStyle='#d4d7de';context.textAlign='center';context.textBaseline='middle';
+  const keyLabels=[];let lightKeycaps=false;
   const keyTransform=new THREE.Object3D();let index=0;
   rows.forEach((row,rowIndex)=>{
-    const width=row.reduce((n,[,w])=>n+w,0)+(row.length-1)*.022;
+    const width=rowWidth(row);
     let left=-width/2;
     row.forEach(([label,w])=>{
       const z=-.805+rowIndex*.16;
       keyTransform.position.set(left+w/2,.152-deckDrop,z);keyTransform.scale.set(w,.016,rowIndex===0?.112:.138);keyTransform.updateMatrix();keys.setMatrixAt(index++,keyTransform.matrix);
       context.font=`${label.length>2?14:20}px Arial`;
-      context.fillText(label,((left+w/2)/2.96+.5)*2048,((z+.99/2+.39)/.99)*760);
-      left+=w+.022;
+      const x=((left+w/2)/2.96+.5)*2048,y=((z+.99/2+.39)/.99)*760;
+      context.fillText(label,x,y);keyLabels.push({label,x,y});
+      left+=w+keyGap;
     });
   });
   const legends=new THREE.CanvasTexture(legendCanvas);legends.colorSpace=THREE.SRGBColorSpace;
   const legendPlane=new THREE.Mesh(new THREE.PlaneGeometry(2.96,.99),new THREE.MeshBasicMaterial({map:legends,transparent:true,depthWrite:false}));
+  legendPlane.name='Keyboard legends';
   legendPlane.rotation.x=-Math.PI/2;legendPlane.position.set(0,.1605-deckDrop,-.39);group.add(legendPlane);
 
   const holes=new THREE.InstancedMesh(new THREE.CylinderGeometry(.004,.004,.001,6),black,360);
@@ -99,6 +108,13 @@ export function createLaptop() {
     group.position.set(settings.x,settings.y,settings.z);group.scale.setScalar(settings.scale);
     lid.rotation.x=THREE.MathUtils.degToRad(90-settings.lidAngle);
     aluminum.color.set(settings.bodyColor);deckMaterial.color.set(settings.bodyColor);trackpadMaterial.color.set(settings.bodyColor);
+    const nextLightKeycaps=settings.finish==='silver'||aluminum.color.getHSL({}).l>.5;
+    if(nextLightKeycaps!==lightKeycaps){
+      lightKeycaps=nextLightKeycaps;keyMaterial.color.set(lightKeycaps?'#f3f4f5':'#090b10');
+      context.clearRect(0,0,legendCanvas.width,legendCanvas.height);context.fillStyle=lightKeycaps?'#30343c':'#d4d7de';
+      keyLabels.forEach(({label,x,y})=>{context.font=`${label.length>2?14:20}px Arial`;context.fillText(label,x,y);});
+      legends.needsUpdate=true;
+    }
     screenMaterial.color.set(settings.screenColor);
   }
   return {group,lid,screenAnchor,screen,update};

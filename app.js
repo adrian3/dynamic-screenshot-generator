@@ -4,29 +4,22 @@ import { RoomEnvironment } from './vendor/three/RoomEnvironment.js';
 import { createLaptop, SCREEN_WIDTH } from './laptop.js';
 import { createDesktop } from './desktop.js';
 import { icon } from './icons.js';
+import { layerOrder, layerNames, controlSpecs as specs, defaultSettings, normalizeSettings, parseDemoConfig, demoConfigFromState, settingsOverrides, isRecord } from './demo-config.js';
 
 const STORAGE_KEY='living-screenshots-3d-state-v1';
 const isLocalHost=['localhost','127.0.0.1','[::1]'].includes(location.hostname)||location.hostname.endsWith('.localhost');
 const CAMERA_DISTANCE=8;
 const MIN_ELEVATION=0;
 const MAX_ELEVATION=70;
-const layerOrder=['background','middleground','middleForeground','foreground'];
-const layerNames=['Background','Middle Ground','Middle Foreground','Foreground'];
 const layerColors=['#2d7f86','#7c9a5f','#c78457','#9a729d'];
-const demoScreenColors={
-  'Dashboard demo':'#e8f3f0',
-  'Chess Demo':'#19272b',
-  'Music demo':'#191d22',
-  'Architecture demo':'#eaf0f2'
-};
-const builtInSets=Object.keys(demoScreenColors).map(name=>({name,source:'built-in',layers:layerOrder.map((key,index)=>({key,name:`${layerNames[index]}.svg`,url:`assets/${name}/${layerNames[index]}.svg`}))}));
+let builtInSets=[];
 const viewport=document.getElementById('viewport');
 const renderStatus=document.getElementById('renderStatus');
 const root=document.documentElement;
 document.getElementById('localAssetActions').hidden=!isLocalHost;
 document.querySelector('label[for="assetSetSelect"]').textContent=isLocalHost?'Folder':'Demo';
 let state;
-let assetSets=[...builtInSets];
+let assetSets=[];
 let serverSets=[];
 let localSets=[];
 let folderHandle=null;
@@ -36,35 +29,37 @@ let interacting=false;
 let applyingCamera=false;
 let needsRender=true;
 let elapsed=0;
+let demoStates=Object.create(null);
+let activeSet=null;
+let activeLayerFiles={};
+let demoBaseSettings=null;
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function defaults() {
-  return {
-    canvas:{grid:true,background:0,panelCollapsed:false,assetSet:'Dashboard demo',highQuality:false},
-    device:'laptop',
-    scene:{perspective:38,rotateX:24,rotateY:-28,rotateZ:0,scale:1},
-    laptop:{visible:true,x:0,y:0,z:0,scale:1,lidAngle:105,finish:'gray',bodyColor:'#4f5560',screenColor:demoScreenColors['Dashboard demo']},
-    desktop:{visible:true,x:0,y:0,z:0,scale:1,tilt:7,finish:'silver',bodyColor:'#c4c7cc'},
-    demoScreenColors:{...demoScreenColors},
-    animation:{enabled:!matchMedia('(prefers-reduced-motion: reduce)').matches,axis:'y',angle:4.5,speed:9000,depth:1.2,time:0},
-    layers:Object.fromEntries(layerOrder.map((key,index)=>[key,{x:0,y:0,z:index*.22,rotateX:0,rotateY:0,rotateZ:0,scale:1,opacity:100}]))
-  };
-}
-
-function merge(defaultValue,saved) {
-  if(!saved||typeof saved!=='object')return defaultValue;
-  for(const [key,value] of Object.entries(saved)) {
-    if(!(key in defaultValue))continue;
-    if(defaultValue[key]&&typeof defaultValue[key]==='object')merge(defaultValue[key],value);
-    else if(typeof defaultValue[key]===typeof value && (typeof value!=='number'||Number.isFinite(value)))defaultValue[key]=value;
-  }
-  return defaultValue;
+  const settings=defaultSettings();settings.animation.enabled=!reducedMotion;settings.canvas.assetSet='';return settings;
 }
 
 function loadState() {
-  try{return merge(defaults(),JSON.parse(localStorage.getItem(STORAGE_KEY)));}catch{return defaults();}
+  try{
+    const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(!isRecord(saved))return defaults();
+    const result=normalizeSettings(saved);result.canvas.assetSet=typeof saved.canvas?.assetSet==='string'?saved.canvas.assetSet:'';
+    if(isRecord(saved.demoStates)){
+      for(const [name,settings] of Object.entries(saved.demoStates))if(isRecord(settings))demoStates[name]=settings;
+    }else{
+      // Preserve the existing arrangement on the selected demo during migration.
+      if(isRecord(saved.demoScreenColors))for(const [name,color] of Object.entries(saved.demoScreenColors))if(typeof color==='string'&&/^#[0-9a-f]{6}$/i.test(color))demoStates[name]={laptop:{screenColor:color}};
+      if(result.canvas.assetSet)demoStates[result.canvas.assetSet]=normalizeSettings(saved);
+    }
+    return result;
+  }catch{return defaults();}
 }
-function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch{}}
-state=loadState();if(!['laptop','desktop'].includes(state.device))state.device='laptop';elapsed=state.animation.time;
+function saveState(){
+  state.animation.time=elapsed;
+  if(activeSet&&demoBaseSettings)demoStates[activeSet.name]=settingsOverrides(state,demoBaseSettings);
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify({...state,demoStates}));}catch{}
+}
+state=loadState();elapsed=state.animation.time;
 
 document.querySelectorAll('[data-icon]').forEach(element=>element.replaceChildren(icon(element.dataset.icon)));
 document.querySelectorAll('summary').forEach(element=>element.append(icon('ChevronDown')));
@@ -81,7 +76,7 @@ renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=1.05;
 renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.shadowMap.type=THREE.VSMShadowMap;
 renderer.shadowMap.autoUpdate=false;
 renderer.domElement.id='sceneCanvas';
 renderer.domElement.setAttribute('aria-label','3D computer and layered screenshots');
@@ -105,7 +100,8 @@ environment.dispose();pmrem.dispose();
 scene.add(new THREE.HemisphereLight('#ffffff','#bbc7d0',1.4));
 const keyLight=new THREE.DirectionalLight('#fff7ed',3.4);
 keyLight.position.set(-3.5,6,4);keyLight.castShadow=true;
-keyLight.shadow.mapSize.set(2048,2048);keyLight.shadow.camera.left=-5;keyLight.shadow.camera.right=5;keyLight.shadow.camera.top=5;keyLight.shadow.camera.bottom=-5;
+keyLight.shadow.mapSize.set(1024,1024);keyLight.shadow.radius=18;keyLight.shadow.blurSamples=16;
+keyLight.shadow.camera.left=-5;keyLight.shadow.camera.right=5;keyLight.shadow.camera.top=5;keyLight.shadow.camera.bottom=-5;
 keyLight.shadow.camera.near=.1;keyLight.shadow.camera.far=20;keyLight.shadow.bias=-.0003;keyLight.shadow.normalBias=.01;
 scene.add(keyLight);
 const fillLight=new THREE.DirectionalLight('#dcecff',2);fillLight.position.set(5,3,1);scene.add(fillLight);
@@ -123,14 +119,6 @@ const ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.ShadowMat
 ground.rotation.x=-Math.PI/2;ground.position.y=-.015;ground.receiveShadow=true;scene.add(ground);
 const grid=new THREE.GridHelper(16,64,'#a8bbc0','#d9e2e5');grid.position.y=-.012;
 grid.material.transparent=true;grid.material.opacity=.26;grid.material.depthWrite=false;scene.add(grid);
-
-const specs={
-  scene:[['perspective','Perspective',25,60,1],['rotateX','Rotate X',MIN_ELEVATION,MAX_ELEVATION,1],['rotateY','Rotate Y',-90,90,1],['rotateZ','Rotate Z',-20,20,1],['scale','Scale',.65,1.65,.01]],
-  laptop:[['lidAngle','Lid angle',90,125,1],['x','X',-1.5,1.5,.01],['y','Y',-.2,1,.01],['z','Z',-1,1,.01],['scale','Scale',.65,1.3,.01]],
-  desktop:[['tilt','Screen tilt',-5,20,1],['x','X',-1.5,1.5,.01],['y','Y',-.2,1,.01],['z','Z',-1,1,.01],['scale','Scale',.65,1.3,.01]],
-  animation:[['angle','Intensity',0,15,.1],['speed','Speed',3000,20000,250],['depth','Z Depth',0,2.5,.01]],
-  layer:[['x','X',-1,1,.01],['y','Y',-1,1,.01],['z','Depth',0,1.5,.01],['rotateX','Rotate X',-30,30,1],['rotateY','Rotate Y',-30,30,1],['rotateZ','Rotate Z',-30,30,1],['scale','Scale',.5,1.5,.01],['opacity','Opacity',0,100,1]]
-};
 
 function target(group,path){return path?state[group][path]:state[group];}
 function makeControl(group,[key,label,min,max,step],path) {
@@ -167,6 +155,7 @@ function renderControls() {
 function syncControls() {
   document.querySelectorAll('input[data-group]').forEach(input=>{input.value=target(input.dataset.group,input.dataset.path)[input.dataset.key];});
   document.getElementById('canvasGrid').checked=state.canvas.grid;
+  document.getElementById('canvasShadow').checked=state.canvas.shadows;
   document.getElementById('canvasBg').value=state.canvas.background;
   document.getElementById('bodyColor').value=state[state.device].bodyColor;
   document.getElementById('screenColor').value=state.laptop.screenColor;
@@ -185,7 +174,8 @@ function syncControls() {
 }
 
 function resize() {
-  const width=viewport.clientWidth,height=viewport.clientHeight;
+  const {width,height}=viewport.getBoundingClientRect();
+  if(width<=0||height<=0)return;
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,state.canvas.highQuality?2:1.5));renderer.setSize(width,height,false);
   camera.aspect=width/height;camera.updateProjectionMatrix();needsRender=true;
 }
@@ -195,6 +185,11 @@ function applyState({persist=true}={}) {
   const shade=Math.round(255-state.canvas.background*2.55);
   root.style.setProperty('--canvas-color',`rgb(${shade},${shade},${shade})`);root.style.setProperty('--canvas-ink',shade<128?'#e6edf1':'#20272d');
   grid.visible=state.canvas.grid;grid.material.color.set(shade<128?'#687780':'#d0dadd');
+  if(renderer.shadowMap.enabled!==state.canvas.shadows){
+    renderer.shadowMap.enabled=state.canvas.shadows;
+    scene.traverse(object=>{for(const material of [object.material].flat().filter(Boolean))material.needsUpdate=true;});
+  }
+  ground.visible=state.canvas.shadows;
   laptop.update(state.laptop);
   desktop.update({...state.desktop,screenColor:state.laptop.screenColor});
   laptop.group.visible=state.device==='laptop';desktop.group.visible=state.device==='desktop';
@@ -208,17 +203,22 @@ function applyState({persist=true}={}) {
     mesh.scale.setScalar(values.scale);mesh.material.opacity=values.opacity/100;
   });
   camera.fov=state.scene.perspective;camera.updateProjectionMatrix();
-  syncControls();resize();renderer.shadowMap.needsUpdate=true;needsRender=true;
+  syncControls();resize();renderer.shadowMap.needsUpdate=state.canvas.shadows;needsRender=true;
   state.animation.time=elapsed;
   if(persist)saveState();
 }
 
+function applyCameraRoll() {
+  let roll=state.scene.rotateZ;
+  if(state.animation.axis==='z')roll+=Math.sin(elapsed/state.animation.speed*Math.PI*2)*state.animation.angle;
+  camera.rotateZ(THREE.MathUtils.degToRad(roll));
+}
+
 function cameraFromState() {
   const wave=Math.sin(elapsed/state.animation.speed*Math.PI*2)*state.animation.angle;
-  let elevation=state.scene.rotateX,yaw=state.scene.rotateY,roll=state.scene.rotateZ;
+  let elevation=state.scene.rotateX,yaw=state.scene.rotateY;
   if(state.animation.axis==='x')elevation+=wave;
-  else if(state.animation.axis==='z')roll+=wave;
-  else yaw+=wave;
+  else if(state.animation.axis==='y')yaw+=wave;
   elevation=THREE.MathUtils.clamp(elevation,MIN_ELEVATION,MAX_ELEVATION);yaw=THREE.MathUtils.clamp(yaw,-90,90);
   const angle=THREE.MathUtils.degToRad(yaw),phi=THREE.MathUtils.degToRad(90-elevation);
   const aspectFit=camera.aspect<1?1/camera.aspect:1;
@@ -226,7 +226,7 @@ function cameraFromState() {
   controls.minDistance=CAMERA_DISTANCE/1.65*aspectFit;controls.maxDistance=CAMERA_DISTANCE/.65*aspectFit;
   camera.position.setFromSpherical(new THREE.Spherical(distance,phi,angle)).add(controls.target);
   applyingCamera=true;controls.update();applyingCamera=false;
-  camera.rotateZ(THREE.MathUtils.degToRad(roll));
+  applyCameraRoll();
 }
 
 function readCamera() {
@@ -239,17 +239,76 @@ function readCamera() {
   syncControls();needsRender=true;
 }
 
-controls.addEventListener('start',()=>{interacting=true;readCamera();elapsed=0;});
-controls.addEventListener('change',()=>{if(!applyingCamera){readCamera();state.animation.time=elapsed;saveState();}});
+controls.addEventListener('start',()=>{
+  interacting=true;readCamera();
+  // Position captures X/Y motion; Z motion needs its existing roll phase.
+  if(state.animation.axis!=='z')elapsed=0;
+});
+controls.addEventListener('change',()=>{
+  if(!applyingCamera){
+    // OrbitControls resets roll when it updates the look-at orientation.
+    applyCameraRoll();readCamera();state.animation.time=elapsed;saveState();
+  }
+});
 controls.addEventListener('end',()=>{interacting=false;readCamera();saveState();needsRender=true;});
 
 function renderAssetOptions() {
   const byName=new Map();for(const set of [...builtInSets,...serverSets,...localSets])byName.set(set.name,set);
+  if(activeSet&&!byName.has(activeSet.name))byName.set(activeSet.name,activeSet);
   assetSets=[...byName.values()];
-  if(!assetSets.some(set=>set.name===state.canvas.assetSet))state.canvas.assetSet=builtInSets[0].name;
+  if(!assetSets.some(set=>set.name===state.canvas.assetSet))state.canvas.assetSet=assetSets[0]?.name||'';
   const select=document.getElementById('assetSetSelect');
   select.replaceChildren(...assetSets.map(set=>{const option=document.createElement('option');option.value=set.name;option.textContent=set.name;return option;}));
   select.value=state.canvas.assetSet;
+}
+
+function serverSet(name,base,source='server',files=null) {
+  const layers=files?mapFiles(files):layerOrder.map((key,index)=>({key,name:`${layerNames[index]}.svg`,url:new URL(`${encodeURIComponent(layerNames[index])}.svg`,base).href}));
+  return {name,source,base,files,layers,configUrl:new URL('demo.json',base).href};
+}
+
+async function loadPublishedSets() {
+  const response=await fetch('assets/demos.json',{cache:'no-store'});
+  if(!response.ok)throw new Error('Could not load assets/demos.json.');
+  const names=await response.json();
+  if(!Array.isArray(names)||!names.length||names.some(name=>typeof name!=='string'||!name.trim()||name==='.'||name==='..'||/[\\/]/.test(name)))throw new Error('assets/demos.json must list demo folder names.');
+  const base=new URL('assets/',location.href);
+  builtInSets=[...new Set(names)].map(name=>serverSet(name,new URL(`${encodeURIComponent(name)}/`,base),'built-in'));
+}
+
+async function configurationFor(set) {
+  let value=null,warning='';
+  try{
+    if(set.handle){
+      try{value=JSON.parse(await (await (await set.handle.getFileHandle('demo.json')).getFile()).text());}
+      catch(error){if(error.name!=='NotFoundError')throw error;}
+    }else{
+      const response=await fetch(set.configUrl,{cache:'no-store'});
+      if(response.ok)value=await response.json();else if(response.status!==404)throw new Error('Could not read demo.json.');
+    }
+    const config=value===null?{settings:defaults(),files:{}}:parseDemoConfig(value,{reducedMotion});
+    return {...config,warning};
+  }catch(error){
+    warning=`Using default settings: ${error.message}`;
+    return {settings:defaults(),files:{},warning,error:error.message};
+  }
+}
+
+function configuredLayers(set,files) {
+  return layerOrder.map(key=>{
+    const file=files[key];
+    if(file!==undefined){
+      if(set.handle){const selected=set.files.find(entry=>entry.name===file);if(!selected)throw new Error(`Missing ${file}.`);return {...selected,key};}
+      return {key,name:file,url:new URL(encodeURIComponent(file),set.base).href};
+    }
+    const fallback=set.layers?.find(layer=>layer.key===key);
+    if(!fallback)throw new Error('The demo needs four SVG layers.');
+    return fallback;
+  });
+}
+
+function demoActionsEnabled(enabled) {
+  for(const id of ['downloadDemo','resetDemo'])document.getElementById(id).disabled=!enabled;
 }
 
 async function textureFromFile(file) {
@@ -267,22 +326,40 @@ async function textureFromFile(file) {
   } finally {URL.revokeObjectURL(url);}
 }
 
-async function loadAssetSet(name,{persist=true}={}) {
+async function loadAssetSet(name,{persist=true,restore=false}={}) {
   const set=assetSets.find(set=>set.name===name);if(!set)return;
+  if(activeSet&&persist)saveState();
   const version=++assetVersion;
-  state.canvas.assetSet=name;
-  if(Object.hasOwn(state.demoScreenColors,name))state.laptop.screenColor=state.demoScreenColors[name];
-  applyState({persist});
-  document.getElementById('assetStatus').textContent='Loading layers';
-  const results=await Promise.allSettled(set.layers.map(textureFromFile));
+  demoActionsEnabled(false);
+  document.getElementById('assetStatus').textContent='Loading demo';
+  const config=await configurationFor(set);
+  if(version!==assetVersion)return;
+  if(restore&&config.error){document.getElementById('assetStatus').textContent=`Could not restore defaults: ${config.error}`;demoActionsEnabled(Boolean(activeSet));return;}
+  let layers;
+  try{layers=configuredLayers(set,config.files);}
+  catch(error){document.getElementById('assetStatus').textContent=error.message;document.getElementById('assetSetSelect').value=state.canvas.assetSet;demoActionsEnabled(Boolean(activeSet));return;}
+  const results=await Promise.allSettled(layers.map(textureFromFile));
   const loaded=results.filter(result=>result.status==='fulfilled').map(result=>result.value);
-  if(version!==assetVersion||loaded.length!==4){loaded.forEach(({texture})=>texture.dispose());if(version===assetVersion)document.getElementById('assetStatus').textContent='Could not load all four SVG layers.';return;}
+  if(version!==assetVersion||loaded.length!==4){
+    loaded.forEach(({texture})=>texture.dispose());
+    if(version===assetVersion){document.getElementById('assetStatus').textContent='Could not load all four SVG layers.';document.getElementById('assetSetSelect').value=state.canvas.assetSet;demoActionsEnabled(Boolean(activeSet));}
+    return;
+  }
+  // Commit settings and textures together, so a slow demo cannot replace a newer one.
+  if(restore)delete demoStates[name];
+  demoBaseSettings=normalizeSettings(config.settings);
+  state=normalizeSettings(restore?null:demoStates[name],demoBaseSettings);state.canvas.assetSet=name;
+  elapsed=state.animation.time;activeSet=set;
+  activeLayerFiles=Object.fromEntries(layers.map(layer=>[layer.key,layer.name]));
   results.forEach((result,index)=>{
     const {texture,ratio}=result.value;
     const mesh=layerMeshes[index];mesh.material.map?.dispose();mesh.geometry.dispose();
     mesh.geometry=new THREE.PlaneGeometry(SCREEN_WIDTH,SCREEN_WIDTH*ratio);mesh.material.map=texture;mesh.material.needsUpdate=true;mesh.visible=true;
   });
-  document.getElementById('assetStatus').textContent='';
+  applyState({persist});
+  renderAssetOptions();
+  document.getElementById('assetStatus').textContent=config.warning;
+  demoActionsEnabled(true);
   renderStatus.hidden=true;viewport.dataset.ready='true';needsRender=true;
 }
 
@@ -308,7 +385,7 @@ async function scanServer() {
     const base=new URL('assets/',location.href);const response=await fetch(base,{cache:'no-store'});if(!response.ok)return false;
     const folders=directoryLinks(await response.text(),base).filter(url=>url.pathname.startsWith(base.pathname)&&url.pathname!==base.pathname&&url.pathname.endsWith('/'));
     const sets=[];
-    for(const url of folders){const listing=await fetch(url,{cache:'no-store'});if(!listing.ok)continue;const files=directoryLinks(await listing.text(),url).filter(link=>link.pathname.toLowerCase().endsWith('.svg')).map(link=>({name:decodeURIComponent(link.pathname.split('/').pop()),url:link.href}));const layers=mapFiles(files);if(layers)sets.push({name:decodeURIComponent(url.pathname.split('/').at(-2)),source:'server',layers});}
+    for(const url of folders){const listing=await fetch(url,{cache:'no-store'});if(!listing.ok)continue;const files=directoryLinks(await listing.text(),url).filter(link=>link.pathname.startsWith(url.pathname)&&link.pathname.toLowerCase().endsWith('.svg')).map(link=>({name:decodeURIComponent(link.pathname.split('/').pop()),url:link.href}));if(files.length>=4)sets.push(serverSet(decodeURIComponent(url.pathname.split('/').at(-2)),url,'server',files));}
     serverSets=sets;renderAssetOptions();return sets.length>0;
   }catch{return false;}
 }
@@ -320,12 +397,13 @@ async function filesInHandle(handle) {
 }
 async function scanLocal(handle) {
   const oldUrls=localUrls;localUrls=[];const sets=[];
-  const rootLayers=mapFiles(await filesInHandle(handle));if(rootLayers)sets.push({name:handle.name,source:'local',layers:rootLayers});
-  for await(const [name,entry] of handle.entries())if(entry.kind==='directory'){const layers=mapFiles(await filesInHandle(entry));if(layers)sets.push({name,source:'local',layers});}
+  const rootFiles=await filesInHandle(handle),rootLayers=mapFiles(rootFiles);if(rootLayers)sets.push({name:handle.name,source:'local',handle,files:rootFiles,layers:rootLayers});
+  for await(const [name,entry] of handle.entries())if(entry.kind==='directory'){const files=await filesInHandle(entry),layers=mapFiles(files);if(layers)sets.push({name,source:'local',handle:entry,files,layers});}
   localSets=sets;renderAssetOptions();
   await loadAssetSet(sets[0]?.name||state.canvas.assetSet);
   document.getElementById('assetSetSelect').value=state.canvas.assetSet;
-  oldUrls.forEach(url=>URL.revokeObjectURL(url));
+  if(activeSet?.files?.some(file=>oldUrls.includes(file.url)))localUrls.push(...oldUrls);
+  else oldUrls.forEach(url=>URL.revokeObjectURL(url));
   if(!sets.length)document.getElementById('assetStatus').textContent='No folders with four SVG layers found.';
 }
 
@@ -338,10 +416,10 @@ document.getElementById('rescanAssetsFolder').addEventListener('click',async()=>
 document.getElementById('animationToggle').addEventListener('click',()=>{state.animation.enabled=!state.animation.enabled;applyState();});
 document.getElementById('animationAxis').addEventListener('change',event=>{state.animation.axis=event.target.value;applyState();});
 document.getElementById('canvasGrid').addEventListener('change',event=>{state.canvas.grid=event.target.checked;applyState();});
+document.getElementById('canvasShadow').addEventListener('change',event=>{state.canvas.shadows=event.target.checked;applyState();});
 document.getElementById('canvasBg').addEventListener('input',event=>{state.canvas.background=Number(event.target.value);applyState();});
 document.getElementById('screenColor').addEventListener('input',event=>{
   state.laptop.screenColor=event.target.value;
-  if(Object.hasOwn(state.demoScreenColors,state.canvas.assetSet))state.demoScreenColors[state.canvas.assetSet]=event.target.value;
   applyState();
 });
 document.getElementById('bodyColor').addEventListener('input',event=>{state[state.device].bodyColor=event.target.value;state[state.device].finish='custom';applyState();});
@@ -352,12 +430,22 @@ document.getElementById('deviceSelect').addEventListener('change',event=>{
 });
 document.getElementById('deviceVisible').addEventListener('change',event=>{state[state.device].visible=event.target.checked;applyState();});
 document.getElementById('panelToggle').addEventListener('click',()=>{state.canvas.panelCollapsed=!state.canvas.panelCollapsed;applyState();});
-document.getElementById('resetView').addEventListener('click',()=>{state.scene=defaults().scene;elapsed=0;applyState();});
+document.getElementById('resetView').addEventListener('click',()=>{state.scene=structuredClone(demoBaseSettings?.scene||defaults().scene);elapsed=demoBaseSettings?.animation.time||0;applyState();});
 document.getElementById('openSettings').addEventListener('click',()=>document.getElementById('settingsModal').showModal());
 document.getElementById('highQuality').addEventListener('change',event=>{state.canvas.highQuality=event.target.checked;applyState();});
+document.getElementById('resetDemo').addEventListener('click',()=>loadAssetSet(state.canvas.assetSet,{restore:true}));
+document.getElementById('downloadDemo').addEventListener('click',()=>{
+  if(!activeSet)return;
+  state.animation.time=elapsed;
+  const content=JSON.stringify(demoConfigFromState(state,activeLayerFiles),null,2)+'\n';
+  const url=URL.createObjectURL(new Blob([content],{type:'application/json'}));
+  const link=document.createElement('a');link.href=url;link.download='demo.json';link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
 async function resetApp() {
   try{localStorage.clear();}catch{}
   const previousUrls=localUrls;localUrls=[];localSets=[];folderHandle=null;
+  demoStates=Object.create(null);activeSet=null;activeLayerFiles={};demoBaseSettings=null;
   state=defaults();elapsed=0;
   renderControls();renderAssetOptions();applyState({persist:false});
   document.getElementById('settingsModal').close();
@@ -375,7 +463,12 @@ function frame(now) {
   if(state.animation.enabled&&!interacting&&!document.hidden){elapsed+=delta;needsRender=true;}
   if(needsRender){if(!interacting)cameraFromState();renderer.render(scene,camera);needsRender=false;}
 }
-renderControls();renderAssetOptions();applyState();loadAssetSet(state.canvas.assetSet);scanServer();
+renderControls();applyState({persist:false});demoActionsEnabled(false);
 requestAnimationFrame(frame);
+try{await loadPublishedSets();}
+catch(error){document.getElementById('assetStatus').textContent=error.message;}
+await scanServer();renderAssetOptions();
+if(state.canvas.assetSet)await loadAssetSet(state.canvas.assetSet);
+else {renderStatus.textContent='No demos available.';renderStatus.classList.add('error');}
 
 export {scene,camera,renderer,controls,laptop,desktop,layerMeshes,state};
