@@ -5,7 +5,7 @@
   "scene": { "perspective": 34, "rotateX": 18, "rotateY": -20, "rotateZ": 0, "scale": 1.3 },
   "laptop": { "visible": true, "x": 0, "y": 0, "z": 0, "scale": 1, "lidAngle": 105, "finish": "gray", "bodyColor": "#4f5560", "screenColor": "#19272b" },
   "desktop": { "visible": true, "x": 0, "y": 0, "z": 0, "scale": 1, "tilt": 7, "finish": "gray", "bodyColor": "#4f5560" },
-  "animation": { "enabled": true, "axis": "y", "angle": 4.5, "speed": 9000, "depth": 1.2, "time": 0 },
+  "animation": { "enabled": true, "preset": "sway", "axis": "y", "angle": 4.5, "speed": 9000, "duration": 12000, "depth": 1.2, "time": 0 },
   "layers": {
     "background": { "file": "Background.svg", "x": 0, "y": 0, "z": 0, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "scale": 1, "opacity": 100 },
     "middleground": { "file": "Middle Ground.svg", "x": 0, "y": 0, "z": 0.22, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "scale": 1, "opacity": 100 },

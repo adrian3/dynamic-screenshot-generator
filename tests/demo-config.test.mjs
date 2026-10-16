@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, access } from 'node:fs/promises';
-import { defaultSettings, normalizeSettings, parseDemoConfig, demoConfigFromState, settingsOverrides, layerOrder, controlSpecs } from '../demo-config.js';
+import { defaultSettings, normalizeSettings, parseDemoConfig, demoConfigFromState, layerOrder, controlSpecs } from '../demo-config.js';
 
 test('published demos contain complete, self-contained configurations and SVGs',async()=>{
   const folders=JSON.parse(await readFile(new URL('../assets/demos.json',import.meta.url),'utf8'));
@@ -46,7 +46,7 @@ test('each demo has its own presentation defaults',async()=>{
   }
 });
 
-test('all saved visual fields have editor controls and only phase is internal',()=>{
+test('all configured visual fields have editor controls and only phase is internal',()=>{
   const paths=(value,prefix='')=>Object.entries(value).flatMap(([key,item])=>{
     const path=prefix?`${prefix}.${key}`:key;
     return item!==null&&typeof item==='object'?paths(item,path):[path];
@@ -55,7 +55,7 @@ test('all saved visual fields have editor controls and only phase is internal',(
   const manual=[
     'canvas.grid','canvas.shadows','canvas.background','canvas.panelCollapsed','canvas.highQuality','device',
     'laptop.visible','laptop.finish','laptop.bodyColor','laptop.screenColor',
-    'desktop.visible','desktop.finish','desktop.bodyColor','animation.enabled','animation.axis'
+    'desktop.visible','desktop.finish','desktop.bodyColor','animation.enabled','animation.axis','animation.preset'
   ];
   assert.deepEqual([...numeric,...manual,'animation.time'].sort(),paths(defaultSettings()).sort());
   for(const group of ['scene','layer'])assert.equal(controlSpecs[group].find(([key])=>key==='rotateZ')[1],'Roll (Z)');
@@ -73,21 +73,24 @@ test('configuration versions and folder-local filenames are enforced',()=>{
   assert.equal(parseDemoConfig({version:1,layers:{background:{file:'My screen.svg'}}}).files.background,'My screen.svg');
 });
 
-test('only edits are stored so changed file defaults can take effect',()=>{
-  const baseline=defaultSettings(),edited=structuredClone(baseline);
-  edited.scene.rotateY=-41;edited.canvas.shadows=false;edited.laptop.screenColor='#abcdef';edited.layers.foreground.rotateZ=7;
-  const overrides=settingsOverrides(edited,baseline);
-  assert.deepEqual(overrides,{canvas:{shadows:false},scene:{rotateY:-41},laptop:{screenColor:'#abcdef'},layers:{foreground:{rotateZ:7}}});
-  const updated=structuredClone(baseline);updated.scene.perspective=44;updated.laptop.bodyColor='#555555';
-  const restored=normalizeSettings(overrides,updated);assert.equal(restored.scene.perspective,44);assert.equal(restored.scene.rotateY,-41);assert.equal(restored.laptop.bodyColor,'#555555');assert.equal(restored.canvas.shadows,false);
-  assert.deepEqual(baseline,defaultSettings());
-});
-
-test('downloaded configurations round-trip all editor settings without runtime metadata',()=>{
+test('copied configurations round-trip all editor settings without runtime metadata',()=>{
   const state=defaultSettings();state.canvas.assetSet='ignored';state.canvas.shadows=false;state.desktop.tilt=12;state.animation.time=1200;state.laptop.bodyColor='#ffffff';state.laptop.finish='custom';
   const files=Object.fromEntries(layerOrder.map((key,index)=>[key,`${index+1}.svg`]));
   const exported=demoConfigFromState(state,files),parsed=parseDemoConfig(JSON.parse(JSON.stringify(exported)));
   assert.deepEqual(parsed.settings,normalizeSettings(state));assert.deepEqual(parsed.files,files);assert.equal(exported.canvas.assetSet,undefined);assert.equal(exported.demoStates,undefined);
+});
+
+test('partial configurations keep Sway and animation fields round-trip in JSON',()=>{
+  const legacy=normalizeSettings({animation:{enabled:false,axis:'z',speed:8000,time:1600},scene:{rotateY:-41}});
+  assert.equal(legacy.animation.preset,'sway');assert.equal(legacy.animation.duration,12000);assert.equal(legacy.animation.time,1600);assert.equal(legacy.scene.rotateY,-41);
+  const tour=normalizeSettings({animation:{preset:'tour',duration:45000}});
+  assert.equal(tour.animation.preset,'tour');assert.equal(tour.animation.duration,45000);
+  assert.equal(normalizeSettings({animation:{preset:'unknown',duration:0}}).animation.preset,'sway');
+  assert.equal(normalizeSettings({animation:{duration:0}}).animation.duration,12000);
+  assert.equal(normalizeSettings({animation:{duration:Infinity}}).animation.duration,12000);
+  assert.equal(normalizeSettings({animation:{preset:'fly-in'}}).animation.preset,'fly-in');
+  assert.equal(normalizeSettings({animation:{preset:'inversion'}}).animation.preset,'inversion');
+  assert.deepEqual(normalizeSettings(tour),tour);
 });
 
 test('reduced motion applies to presets without preventing explicit local play',()=>{

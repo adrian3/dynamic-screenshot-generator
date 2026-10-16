@@ -87,6 +87,14 @@ export function createLaptop() {
   const legendPlane=new THREE.Mesh(new THREE.PlaneGeometry(2.96,.99),new THREE.MeshBasicMaterial({map:legends,transparent:true,depthWrite:false}));
   legendPlane.name='Keyboard legends';
   legendPlane.rotation.x=-Math.PI/2;legendPlane.position.set(0,.1605-deckDrop,-.39);group.add(legendPlane);
+  const lightKeys=new THREE.Color('#f3f4f5'),darkKeys=new THREE.Color('#090b10');
+  const darkLegends=new THREE.Color('#30343c'),lightLegends=new THREE.Color('#d4d7de');
+  let inverting=false;
+  function repaintLegends(color) {
+    context.clearRect(0,0,legendCanvas.width,legendCanvas.height);context.fillStyle=color;
+    keyLabels.forEach(({label,x,y})=>{context.font=`${label.length>2?14:20}px Arial`;context.fillText(label,x,y);});
+    legends.needsUpdate=true;
+  }
 
   const holes=new THREE.InstancedMesh(new THREE.CylinderGeometry(.004,.004,.001,6),black,360);
   const dot=new THREE.Object3D();index=0;
@@ -109,13 +117,19 @@ export function createLaptop() {
     lid.rotation.x=THREE.MathUtils.degToRad(90-settings.lidAngle);
     aluminum.color.set(settings.bodyColor);deckMaterial.color.set(settings.bodyColor);trackpadMaterial.color.set(settings.bodyColor);
     const nextLightKeycaps=settings.finish==='silver'||aluminum.color.getHSL({}).l>.5;
-    if(nextLightKeycaps!==lightKeycaps){
+    if(nextLightKeycaps!==lightKeycaps||inverting){
+      inverting=false;
       lightKeycaps=nextLightKeycaps;keyMaterial.color.set(lightKeycaps?'#f3f4f5':'#090b10');
-      context.clearRect(0,0,legendCanvas.width,legendCanvas.height);context.fillStyle=lightKeycaps?'#30343c':'#d4d7de';
-      keyLabels.forEach(({label,x,y})=>{context.font=`${label.length>2?14:20}px Arial`;context.fillText(label,x,y);});
-      legends.needsUpdate=true;
+      repaintLegends(lightKeycaps?'#30343c':'#d4d7de');legendPlane.material.color.set('#ffffff');
     }
     screenMaterial.color.set(settings.screenColor);
   }
-  return {group,lid,screenAnchor,screen,update};
+  function setFinishBlend(blend) {
+    aluminum.color.setRGB(1-blend,1-blend,1-blend);deckMaterial.color.copy(aluminum.color);trackpadMaterial.color.copy(aluminum.color);
+    keyMaterial.color.lerpColors(lightKeys,darkKeys,blend);
+    if(!inverting){repaintLegends('#ffffff');inverting=true;}
+    legendPlane.material.color.lerpColors(darkLegends,lightLegends,blend);
+    return aluminum.color;
+  }
+  return {group,lid,screenAnchor,screen,update,setFinishBlend};
 }

@@ -70,5 +70,9 @@ export function createDesktop() {
     aluminum.color.set(settings.bodyColor);baseMaterial.color.set(settings.bodyColor);
     screenMaterial.color.set(settings.screenColor);
   }
-  return {group,head,screenAnchor,screen,update};
+  function setFinishBlend(blend) {
+    aluminum.color.setRGB(1-blend,1-blend,1-blend);baseMaterial.color.copy(aluminum.color);
+    return aluminum.color;
+  }
+  return {group,head,screenAnchor,screen,update,setFinishBlend};
 }

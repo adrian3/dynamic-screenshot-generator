@@ -1,11 +1,12 @@
 export const layerOrder=['background','middleground','middleForeground','foreground'];
 export const layerNames=['Background','Middle Ground','Middle Foreground','Foreground'];
+export const animationPresets=['sway','tour','fly-in','inversion'];
 
 export const controlSpecs={
   scene:[['perspective','Perspective',25,60,1],['rotateX','Rotate X',0,70,1],['rotateY','Rotate Y',-90,90,1],['rotateZ','Roll (Z)',-20,20,1],['scale','Scale',.65,1.65,.01]],
   laptop:[['lidAngle','Lid angle',90,125,1],['x','X',-1.5,1.5,.01],['y','Y',-.2,1,.01],['z','Z',-1,1,.01],['scale','Scale',.65,1.3,.01]],
   desktop:[['tilt','Screen tilt',-5,20,1],['x','X',-1.5,1.5,.01],['y','Y',-.2,1,.01],['z','Z',-1,1,.01],['scale','Scale',.65,1.3,.01]],
-  animation:[['angle','Intensity',0,15,.1],['speed','Speed',3000,20000,250],['depth','Z Depth',0,2.5,.01]],
+  animation:[['angle','Intensity',0,15,.1],['speed','Speed',3000,20000,250],['duration','Duration (ms)',12000,90000,1000],['depth','Z Depth',0,2.5,.01]],
   layer:[['x','X',-1,1,.01],['y','Y',-1,1,.01],['z','Depth',0,1.5,.01],['rotateX','Rotate X',-30,30,1],['rotateY','Rotate Y',-30,30,1],['rotateZ','Roll (Z)',-30,30,1],['scale','Scale',.5,1.5,.01],['opacity','Opacity',0,100,1]]
 };
 
@@ -20,12 +21,12 @@ export function defaultSettings() {
     scene:{perspective:38,rotateX:24,rotateY:-28,rotateZ:0,scale:1},
     laptop:{visible:true,x:0,y:0,z:0,scale:1,lidAngle:105,finish:'gray',bodyColor:'#4f5560',screenColor:'#e8f3f0'},
     desktop:{visible:true,x:0,y:0,z:0,scale:1,tilt:7,finish:'silver',bodyColor:'#c4c7cc'},
-    animation:{enabled:true,axis:'y',angle:4.5,speed:9000,depth:1.2,time:0},
+    animation:{enabled:true,preset:'sway',axis:'y',angle:4.5,speed:9000,duration:12000,depth:1.2,time:0},
     layers:Object.fromEntries(layerOrder.map((key,index)=>[key,{x:0,y:0,z:index*.22,rotateX:0,rotateY:0,rotateZ:0,scale:1,opacity:100}]))
   };
 }
 
-// Only known editor fields reach rendering; saved overrides use the same rules.
+// Only known editor fields from demo JSON or clipboard captures reach rendering.
 export function normalizeSettings(input,base=defaultSettings()) {
   const result=structuredClone(base);
   if(!isRecord(input))return result;
@@ -51,6 +52,7 @@ export function normalizeSettings(input,base=defaultSettings()) {
   choice(input,result,'device',['laptop','desktop']);
   if(isRecord(input.animation)){
     boolean(input.animation,result.animation,'enabled');choice(input.animation,result.animation,'axis',['x','y','z']);
+    choice(input.animation,result.animation,'preset',animationPresets);
     number(input.animation,result.animation,'time',0,Number.MAX_SAFE_INTEGER);
   }
   return result;
@@ -73,16 +75,4 @@ export function demoConfigFromState(state,files) {
   const settings=normalizeSettings(state);
   for(const key of layerOrder)settings.layers[key]={file:files[key],...settings.layers[key]};
   return {version:1,...settings};
-}
-
-export function settingsOverrides(state,baseline) {
-  const difference=(value,base)=>{
-    const changes={};
-    for(const [key,item] of Object.entries(value)){
-      if(isRecord(item)){const nested=difference(item,base[key]);if(Object.keys(nested).length)changes[key]=nested;}
-      else if(item!==base[key])changes[key]=item;
-    }
-    return changes;
-  };
-  return difference(normalizeSettings(state),baseline);
 }
