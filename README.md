@@ -18,14 +18,14 @@ The 3D editor remembers only the selected folder and animation under `living-scr
 - Procedural desktop display based on the monitor reference: thin widescreen panel, sloped aluminum stem, rounded rectangular base, and adjustable screen tilt.
 - Laptop/Desktop selector with separate positioning, scale, visibility, and finish settings. The desktop starts in Silver; existing laptop settings are preserved.
 - Space Gray and Silver finishes, plus a custom body color and screen color.
-- A 16:9 preview that fits the workspace without changing the composition when the controls drawer opens or closes. Appearance controls sit below the frame.
+- A 16:9 preview that fits the workspace without changing the composition when the controls drawer opens or closes. Appearance controls, including a full-color background picker, sit below the frame.
 - Soft shadows with a Shadows checkbox. Disabling shadows also disables their rendering pass.
 - Four SVG planes attached to the selected display. At zero Z Depth, they register on the screen; increased depth lifts them along its normal. Desktop tilt moves the panel and all layers together.
 - Camera rotation, scale, perspective, lid angle, and individual layer controls.
 - Front-only camera orbit: azimuth is constrained to -90 through +90 degrees. Elevation ranges from a horizon-level 0 degrees through 70 degrees above the scene.
 - Four animation presets, selected below the demo/folder dropdown: Sway (a subtle axis pivot), Camera Tour (three views over 12 seconds), Fly In (a one-second entrance with continuous gentle sway), and Inversion (two captured views with an angle-linked white-to-black device finish). Play and pause retain the current animation phase.
 - Mouse and touch orbit and zoom, remembered folder/animation selections, and reduced-motion support.
-- CSS and image export controls remain removed.
+- PNG download from the toolbar, with a frozen-frame preview and a transparent-background checkbox. CSS and animation export remain removed.
 
 The renderer uses studio environment lighting, metal/roughness materials, and contact shadows. SVG panels use unlit textures so their interface colors remain consistent. The original SVG files remain the editable source assets; rendering converts them to textures up to 1920 pixels wide, or 1280 on narrow screens.
 
@@ -49,9 +49,15 @@ Open [the local app](http://127.0.0.1:8787/index.html). ES modules and asset loa
 
 GitHub Pages can serve the repository root directly. Runtime dependencies are included locally under `vendor/`, so the app does not depend on a CDN, package installation, or a build service.
 
+## PNG Export
+
+The toolbar Download PNG icon pauses playback at the current frame and opens a modal. Unchecked Transparent background includes the current canvas color; checked exports alpha transparency. The preview uses the same frozen pixels as the downloaded PNG, including the current camera, layer transforms, device finish, animation transition, grid and shadows. Closing or downloading leaves playback paused until Play is pressed. Already-paused scenes retain their frame.
+
+Exports use the preview's drawing-buffer resolution, including its device pixel ratio, and contain only the 16:9 scene, not editor controls. The size is shown in the modal. The checkbox choice lasts for the current session but is not stored in browser preferences. Capture copies the WebGL canvas immediately after rendering, so PNG encoding does not require preserving the drawing buffer or changing normal rendering performance. No server-side processing or new dependencies are required; exports work on the local server and GitHub Pages.
+
 ## Assets
 
-The built-in examples are `assets/Dashboard demo/`, `assets/Chess Demo/` (Eugene Chess), `assets/Music demo/` (Signal Studio, a music production session), and `assets/Architecture demo/` (Architecture Studio, a courtyard-house plan with structural and environmental overlays). Each uses four SVGs with a 1920 x 1037 view box:
+The built-in examples are `assets/Dashboard demo/`, `assets/Chess Demo/` (Eugene Chess), `assets/Music demo/` (Signal Studio, a music production session), `assets/Architecture demo/` (Architecture Studio, a courtyard-house plan with structural and environmental overlays), and `assets/ERP demo/` (Ledger ERP, a fictional financial workspace). Each uses four SVGs with a 1920 x 1037 view box:
 
 - `Background.svg`
 - `Middle Ground.svg`
@@ -64,15 +70,16 @@ Each demo folder is self-contained: its four SVGs and `demo.json` define the ful
 - Music: dark laptop, black background, no grid, low camera elevation (12 degrees).
 - Chess: dark desktop, black background, grid on.
 - Dashboard: silver/white laptop, white background, grid on.
+- ERP: dark laptop, deep-blue background matching the screen (`#142a3b`), grid on and no shadow, with a deep-blue financial report. Its four layers separate the report shell and serif headline, subsidiary performance chart and evidence table, raised summary metrics, and a floating query strip and close-readiness panel. Cyan, coral, lime and amber distinguish the insights. All companies and financial figures are fictional; the artwork uses system fonts and no product screenshots, logos or external images.
 
-`demo.json` uses `"version": 1` and the same field names and values as the editor. `canvas.background` is 0 for white through 100 for black; numeric controls are limited to their editor ranges. SVG filenames in `layers` are relative to that demo folder. Omitting settings uses the generic defaults; folders without JSON still load their SVGs. Invalid JSON shows a status warning and uses fallback settings.
+`demo.json` uses `"version": 1` and the same field names and values as the editor. `canvas.background` accepts a six-digit hex color such as `"#142a3b"`. Legacy numeric values from 0 (white) through 100 (black) still load with the same appearance, but the editor and copied JSON use hex colors. The Background picker changes the canvas, independently of the device and screen colors; grid contrast adapts to its brightness. Background edits follow the same selection-only storage policy as other appearance controls. Numeric controls are limited to their editor ranges. SVG filenames in `layers` are relative to that demo folder. Omitting settings uses the generic defaults; folders without JSON still load their SVGs. Invalid JSON shows a status warning and uses fallback settings.
 
 For example, a partial configuration is valid:
 
 ```json
 {
   "version": 1,
-  "canvas": { "grid": false, "shadows": true, "background": 0 },
+  "canvas": { "grid": false, "shadows": true, "background": "#ffffff" },
   "device": "laptop",
   "laptop": { "finish": "silver", "screenColor": "#19272b" },
   "scene": { "rotateX": 24, "rotateY": -28 },
@@ -115,6 +122,7 @@ The product-specific legacy SVG folders have been removed. The old photographic 
 - `editor-preferences.js`: selection-only local storage and legacy migration.
 - `demo-config.js`: shared editor ranges, configuration validation, and clipboard serialization.
 - `camera-motion.js`: Sway/Camera Tour/Fly In/Inversion sampling and exact visible-camera snapshots.
+- `png-export.js`: frozen-frame composition, PNG encoding and browser downloads.
 - `assets/demos.json`: published demo folder index. Each folder contains its own `demo.json` and SVGs.
 - `laptop.js`: original procedural laptop geometry.
 - `desktop.js`: original procedural desktop display and stand geometry.

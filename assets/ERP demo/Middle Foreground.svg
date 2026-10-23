@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Ledger ERP: raised financial performance highlights</title>
+  <desc>Three large insight panels surface total net income, the leading subsidiary and the only loss-making subsidiary.</desc>
+  <g fill="#253d51" stroke="#466276" stroke-width="1.5">
+    <rect x="1272" y="334" width="552" height="142" rx="6"/>
+    <rect x="1272" y="500" width="552" height="142" rx="6"/>
+    <rect x="1272" y="666" width="552" height="142" rx="6"/>
+  </g>
+  <path d="M1278 336H1818" stroke="#7ad4dc" stroke-width="5" stroke-linecap="round"/>
+  <path d="M1278 502H1818" stroke="#a7ce73" stroke-width="5" stroke-linecap="round"/>
+  <path d="M1278 668H1818" stroke="#ef9283" stroke-width="5" stroke-linecap="round"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <g font-size="22" fill="#c4d5e1">
+      <text x="1298" y="372">Total net income</text><text x="1298" y="538">Top subsidiary</text><text x="1298" y="704">Lowest subsidiary</text>
+    </g>
+    <g font-size="39" font-weight="700" fill="#f0f6f8">
+      <text x="1298" y="421">$1,482,600</text><text x="1298" y="587">$684,200</text><text x="1298" y="753">-$8,900</text>
+    </g>
+    <g font-size="17" fill="#a6bdcd">
+      <text x="1298" y="454">This period / All subsidiaries</text>
+      <text x="1298" y="620">Meridian Manufacturing</text>
+      <text x="1298" y="786">Ventures R&amp;D / Investment phase</text>
+    </g>
+  </g>
+  <g fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M1760 411V402M1770 411V389M1780 411V382M1790 411V368" stroke="#7ad4dc"/>
+    <path d="M1764 583L1790 557M1771 557H1790V576" stroke="#a7ce73"/>
+    <path d="M1764 723L1790 749M1771 749H1790V730" stroke="#ef9283"/>
+  </g>
+</svg>

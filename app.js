@@ -7,6 +7,7 @@ import { icon } from './icons.js';
 import { layerOrder, layerNames, controlSpecs as specs, defaultSettings, normalizeSettings, parseDemoConfig } from './demo-config.js';
 import { CAMERA_DISTANCE, FLY_IN_DURATION, PRESET_TRANSITION_DURATION, transitionWeight, blendCameraPose, flyInPose, isCameraTour, cameraStartPose, sampleCameraPose, sampleFlyIn, sampleInversion, snapshotCamera, captureDemoConfig } from './camera-motion.js';
 import { loadPreferences, savePreferences, clearPreferences } from './editor-preferences.js';
+import { composePngFrame, encodePng, savePng } from './png-export.js';
 
 const isLocalHost=['localhost','127.0.0.1','[::1]'].includes(location.hostname)||location.hostname.endsWith('.localhost');
 const MIN_ELEVATION=0;
@@ -187,9 +188,10 @@ function resize() {
 
 function applyState() {
   document.getElementById('app').classList.toggle('panel-collapsed',state.canvas.panelCollapsed);
-  const shade=Math.round(255-state.canvas.background*2.55);
-  root.style.setProperty('--canvas-color',`rgb(${shade},${shade},${shade})`);root.style.setProperty('--canvas-ink',shade<128?'#e6edf1':'#20272d');
-  grid.visible=state.canvas.grid;grid.material.color.set(shade<128?'#687780':'#d0dadd');
+  const background=new THREE.Color(state.canvas.background);
+  const dark=.2126*background.r+.7152*background.g+.0722*background.b<.18;
+  root.style.setProperty('--canvas-color',state.canvas.background);root.style.setProperty('--canvas-ink',dark?'#e6edf1':'#20272d');
+  grid.visible=state.canvas.grid;grid.material.color.set(dark?'#687780':'#d0dadd');
   if(renderer.shadowMap.enabled!==state.canvas.shadows){
     renderer.shadowMap.enabled=state.canvas.shadows;
     scene.traverse(object=>{for(const material of [object.material].flat().filter(Boolean))material.needsUpdate=true;});
@@ -388,7 +390,7 @@ function configuredLayers(set,files) {
 }
 
 function demoActionsEnabled(enabled) {
-  for(const id of ['copyDemo','resetDemo'])document.getElementById(id).disabled=!enabled;
+  for(const id of ['copyDemo','resetDemo','openPng'])document.getElementById(id).disabled=!enabled;
 }
 
 async function textureFromFile(file) {
@@ -518,7 +520,7 @@ document.getElementById('animationPreset').addEventListener('change',event=>{
 document.getElementById('animationAxis').addEventListener('change',event=>{state.animation.axis=event.target.value;applyState();});
 document.getElementById('canvasGrid').addEventListener('change',event=>{state.canvas.grid=event.target.checked;applyState();});
 document.getElementById('canvasShadow').addEventListener('change',event=>{state.canvas.shadows=event.target.checked;applyState();});
-document.getElementById('canvasBg').addEventListener('input',event=>{state.canvas.background=Number(event.target.value);applyState();});
+document.getElementById('canvasBg').addEventListener('input',event=>{state.canvas.background=event.target.value;applyState();});
 document.getElementById('screenColor').addEventListener('input',event=>{
   state.laptop.screenColor=event.target.value;
   applyState();
@@ -547,6 +549,52 @@ document.getElementById('resetView').addEventListener('click',()=>{
 document.getElementById('openSettings').addEventListener('click',()=>document.getElementById('settingsModal').showModal());
 document.getElementById('highQuality').addEventListener('change',event=>{state.canvas.highQuality=event.target.checked;applyState();});
 document.getElementById('resetDemo').addEventListener('click',()=>loadAssetSet(state.canvas.assetSet,{restore:true}));
+const pngModal=document.getElementById('pngModal'),pngPreview=document.getElementById('pngPreview');
+const pngTransparent=document.getElementById('pngTransparent'),pngDownload=document.getElementById('downloadPng');
+const pngError=document.getElementById('pngError'),pngDownloadLabel=document.getElementById('pngDownloadLabel');
+let pngFrame=null,pngBackground='',pngFilename='';
+function showPngError(error) {
+  pngError.textContent=error.message||'PNG export failed. Please try again.';pngError.hidden=false;
+  console.error('PNG export failed:',error);
+}
+function updatePngPreview() {
+  pngError.hidden=true;
+  try {
+    pngPreview.replaceChildren(composePngFrame(pngFrame,{transparent:pngTransparent.checked,background:pngBackground}));
+    pngDownload.disabled=false;
+  } catch(error) {pngDownload.disabled=true;showPngError(error);}
+}
+document.getElementById('openPng').addEventListener('click',()=>{
+  if(!activeSet||pngModal.open)return;
+  state.animation.enabled=false;syncControls();
+  pngDownload.disabled=true;pngTransparent.disabled=false;pngDownloadLabel.textContent='Download PNG';
+  pngError.hidden=true;document.getElementById('pngSize').textContent='';
+  try {
+    if(renderer.getContext().isContextLost())throw new Error('The 3D session was interrupted. Reload before exporting.');
+    renderCurrentFrame();
+    // Copy immediately after rendering; WebGL may discard its buffer before PNG encoding.
+    pngFrame=composePngFrame(renderer.domElement,{transparent:true});pngBackground=state.canvas.background;
+    pngFilename=state.canvas.assetSet.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'living-screenshots';
+    document.getElementById('pngSize').textContent=`${pngFrame.width} x ${pngFrame.height} px`;
+    updatePngPreview();
+  } catch(error) {showPngError(error);}
+  pngModal.showModal();
+});
+pngTransparent.addEventListener('change',updatePngPreview);
+pngDownload.addEventListener('click',async()=>{
+  if(!pngFrame||pngDownload.disabled)return;
+  const frame=pngFrame,canvas=pngPreview.firstElementChild,transparent=pngTransparent.checked;
+  pngDownload.disabled=true;pngTransparent.disabled=true;pngDownloadLabel.textContent='Preparing...';pngError.hidden=true;
+  try {
+    const blob=await encodePng(canvas);
+    if(pngFrame!==frame||!pngModal.open)return;
+    savePng(blob,`${pngFilename}${transparent?'-transparent':''}.png`);pngModal.close();
+  } catch(error) {if(pngFrame===frame&&pngModal.open)showPngError(error);}
+  finally {
+    if(pngFrame===frame){pngDownload.disabled=false;pngTransparent.disabled=false;pngDownloadLabel.textContent='Download PNG';}
+  }
+});
+pngModal.addEventListener('close',()=>{pngFrame=null;pngPreview.replaceChildren();});
 let copyFeedbackTimer;
 document.getElementById('copyDemo').addEventListener('click',async()=>{
   if(!activeSet)return;
@@ -572,6 +620,7 @@ document.getElementById('copyDemo').addEventListener('click',async()=>{
 });
 async function resetApp() {
   cancelPresetTransition();
+  pngModal.close();pngTransparent.checked=false;
   clearPreferences();preferences={assetSet:'',animationPreset:null};
   const previousUrls=localUrls;localUrls=[];localSets=[];folderHandle=null;
   activeSet=null;activeLayerFiles={};demoBaseSettings=null;
@@ -586,6 +635,23 @@ for(const id of ['resetAll','resetApp'])document.getElementById(id).addEventList
 new ResizeObserver(resize).observe(viewport);
 renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();renderStatus.hidden=false;renderStatus.textContent='The 3D session was interrupted. Reload to continue.';renderStatus.classList.add('error');});
 let previous=performance.now();
+function renderCurrentFrame() {
+  const pose=sampleCameraPose(state.scene,state.animation,elapsed),weight=transitionWeight(presetTransition?.time??PRESET_TRANSITION_DURATION);
+  if(!interacting){
+    const target=[0,state.device==='desktop'?1.25:1.05,.05];
+    controls.target.fromArray(target.map((value,index)=>presetTransition?THREE.MathUtils.lerp(presetTransition.camera.target[index],value,weight):value));
+    cameraFromState(presetTransition?.cameraActive?blendCameraPose(presetTransition.camera,pose,weight):pose);
+  }
+  if(presetTransition)for(const entry of presetTransition.materials)entry.material.color.copy(entry.targetColor);
+  applyEntrance();applyInversion(presetTransition?.cameraActive?pose.rotateY:undefined);
+  if(presetTransition)blendAppearance(weight);
+  if(state.animation.preset==='inversion'&&presetTransition){
+    const body=devices[state.device].group.getObjectByName(state.device==='laptop'?'Chassis':'Desktop shell');
+    document.getElementById('bodyColor').value=`#${[body.material].flat()[0].color.getHexString()}`;
+  }
+  renderer.render(scene,camera);needsRender=false;
+  if(presetTransition?.time===PRESET_TRANSITION_DURATION)presetTransition=null;
+}
 function frame(now) {
   requestAnimationFrame(frame);
   const delta=Math.min(now-previous,50);previous=now;
@@ -595,23 +661,7 @@ function frame(now) {
     state.animation.time=elapsed;needsRender=true;
     if(presetTransition)presetTransition.time=Math.min(PRESET_TRANSITION_DURATION,presetTransition.time+delta);
   }
-  if(needsRender){
-    const pose=sampleCameraPose(state.scene,state.animation,elapsed),weight=transitionWeight(presetTransition?.time??PRESET_TRANSITION_DURATION);
-    if(!interacting){
-      const target=[0,state.device==='desktop'?1.25:1.05,.05];
-      controls.target.fromArray(target.map((value,index)=>presetTransition?THREE.MathUtils.lerp(presetTransition.camera.target[index],value,weight):value));
-      cameraFromState(presetTransition?.cameraActive?blendCameraPose(presetTransition.camera,pose,weight):pose);
-    }
-    if(presetTransition)for(const entry of presetTransition.materials)entry.material.color.copy(entry.targetColor);
-    applyEntrance();applyInversion(presetTransition?.cameraActive?pose.rotateY:undefined);
-    if(presetTransition)blendAppearance(weight);
-    if(state.animation.preset==='inversion'&&presetTransition){
-      const body=devices[state.device].group.getObjectByName(state.device==='laptop'?'Chassis':'Desktop shell');
-      document.getElementById('bodyColor').value=`#${[body.material].flat()[0].color.getHexString()}`;
-    }
-    renderer.render(scene,camera);needsRender=false;
-    if(presetTransition?.time===PRESET_TRANSITION_DURATION)presetTransition=null;
-  }
+  if(needsRender)renderCurrentFrame();
 }
 renderControls();applyState();demoActionsEnabled(false);
 requestAnimationFrame(frame);

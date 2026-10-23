@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Ledger ERP: dark financial performance report</title>
+  <desc>A fictional consolidated financial report for Meridian Group, presented on deep-blue surfaces with a serif title and cyan, coral, lime and amber accents.</desc>
+  <defs><clipPath id="report-frame"><rect x="48" y="48" width="1824" height="941" rx="6"/></clipPath></defs>
+  <g clip-path="url(#report-frame)">
+    <rect x="48" y="48" width="1824" height="941" fill="#142a3b"/>
+    <rect x="48" y="48" width="1824" height="70" fill="#102331"/>
+    <path d="M48 51H590" stroke="#8d8fae" stroke-width="6"/>
+    <path d="M590 51H1150" stroke="#428c9d" stroke-width="6"/>
+    <path d="M1150 51H1440" stroke="#ed8c7c" stroke-width="6"/>
+    <path d="M1440 51H1872" stroke="#80d9df" stroke-width="6"/>
+    <path d="M259 73V98M48 118H1872" stroke="#304a5c"/>
+    <rect x="1330" y="135" width="254" height="38" rx="4" fill="#1f374a" stroke="#3b5668"/>
+    <rect x="1600" y="135" width="224" height="38" rx="4" fill="#1f374a" stroke="#3b5668"/>
+    <g font-family="Arial, Helvetica, sans-serif">
+      <text x="96" y="96" font-size="29" font-weight="700" fill="#edf4f6">Ledger</text>
+      <text x="277" y="91" font-size="17" fill="#a7becd">ERP / FINANCE WORKSPACE</text>
+      <text x="1280" y="90" font-size="16" fill="#a7becd">Meridian Group</text>
+      <text x="1592" y="90" font-size="15" text-anchor="end" fill="#d9be75">GENERATED INSIGHT</text>
+      <text x="112" y="160" font-size="16" fill="#a8bdcb">Reports / Financial performance</text>
+      <text x="1350" y="160" font-size="16" fill="#d9e5eb">All subsidiaries</text>
+      <text x="1620" y="160" font-size="16" fill="#d9e5eb">October 2026</text>
+      <text x="112" y="299" font-size="20" fill="#c5d5df">Group net income is <tspan font-weight="700" fill="#edf4f6">$1,482,600</tspan>, with five of six entities profitable.</text>
+      <text x="112" y="331" font-size="18" fill="#a7bdcb">Meridian Manufacturing leads at <tspan font-weight="700" fill="#c5e8df">$684,200</tspan>. Ventures R&amp;D is the only loss-making entity.</text>
+      <text x="1272" y="232" font-size="13" fill="#8ea9bb">REPORT HIGHLIGHTS</text>
+      <text x="1272" y="268" font-size="25" font-weight="700" fill="#edf4f6">The numbers that matter</text>
+      <text x="1272" y="299" font-size="16" fill="#9fb6c5">This period / Consolidated / USD</text>
+      <text x="112" y="978" font-size="13" fill="#839faf">LEDGER ERP / FINANCIAL INTELLIGENCE</text>
+      <text x="1824" y="978" text-anchor="end" font-size="13" fill="#839faf">Fictional demo data / USD / Accrual basis</text>
+    </g>
+    <path d="M112 209V238" stroke="#82d9df" stroke-width="3" stroke-linecap="round"/>
+    <path d="M112 239V251" stroke="#ef9486" stroke-width="3" stroke-linecap="round"/>
+    <text x="136" y="242" font-family="Georgia, 'Times New Roman', serif" font-size="42" fill="#edf4f6">Financial performance across subsidiaries</text>
+    <path d="M112 266H1216M1244 214V950" stroke="#304a5c"/>
+    <g stroke="#a4bdcb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1555 151L1560 156 1565 151M1795 151L1800 156 1805 151"/>
+      <path d="M1665 79H1680V93H1665ZM1668 79V73H1677V79M1669 87H1676M1670 93V98H1676V93"/>
+      <path d="M1730 78L1737 85 1730 92M1737 78L1744 85 1737 92"/>
+      <circle cx="1807" cy="85" r="17" stroke="#547284"/>
+    </g>
+    <text x="1807" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#c8dbe6">AC</text>
+  </g>
+  <rect x="48" y="48" width="1824" height="941" rx="6" stroke="#4a6274" stroke-width="2"/>
+</svg>

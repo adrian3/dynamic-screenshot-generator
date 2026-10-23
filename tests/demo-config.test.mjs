@@ -5,7 +5,7 @@ import { defaultSettings, normalizeSettings, parseDemoConfig, demoConfigFromStat
 
 test('published demos contain complete, self-contained configurations and SVGs',async()=>{
   const folders=JSON.parse(await readFile(new URL('../assets/demos.json',import.meta.url),'utf8'));
-  assert.equal(folders.length,4);
+  assert.equal(folders.length,5);
   const colors=[];
   for(const name of folders){
     const folder=new URL(`../assets/${encodeURIComponent(name)}/`,import.meta.url);
@@ -15,7 +15,7 @@ test('published demos contain complete, self-contained configurations and SVGs',
     for(const group of ['canvas','scene','laptop','desktop','animation'])for(const key of Object.keys(defaultSettings()[group]))assert.ok(Object.hasOwn(json[group],key),`${name}: ${group}.${key}`);
     for(const key of layerOrder){assert.ok(config.files[key]);await access(new URL(encodeURIComponent(config.files[key]),folder));}
   }
-  assert.deepEqual(colors,['#e8f3f0','#19272b','#191d22','#eaf0f2']);
+  assert.deepEqual(colors,['#e8f3f0','#19272b','#191d22','#eaf0f2','#142a3b']);
 });
 
 test('partial configuration fills defaults and infers a preset body color',()=>{
@@ -26,10 +26,11 @@ test('partial configuration fills defaults and infers a preset body color',()=>{
 
 test('each demo has its own presentation defaults',async()=>{
   const expected={
-    'Architecture demo':{device:'desktop',finish:'silver',bodyColor:'#c4c7cc',background:0,grid:false,shadows:false,elevation:18,yaw:-28},
-    'Music demo':{device:'laptop',finish:'gray',bodyColor:'#4f5560',background:100,grid:false,shadows:true,elevation:12,yaw:-28},
-    'Chess Demo':{device:'desktop',finish:'gray',bodyColor:'#4f5560',background:100,grid:true,shadows:true,elevation:18,yaw:-20},
-    'Dashboard demo':{device:'laptop',finish:'silver',bodyColor:'#c4c7cc',background:0,grid:true,shadows:true,elevation:24,yaw:-20}
+    'Architecture demo':{device:'desktop',finish:'silver',bodyColor:'#c4c7cc',background:'#ffffff',grid:false,shadows:false,elevation:18,yaw:-28},
+    'Music demo':{device:'laptop',finish:'gray',bodyColor:'#4f5560',background:'#000000',grid:false,shadows:true,elevation:12,yaw:-28},
+    'Chess Demo':{device:'desktop',finish:'gray',bodyColor:'#4f5560',background:'#000000',grid:true,shadows:true,elevation:18,yaw:-20},
+    'Dashboard demo':{device:'laptop',finish:'silver',bodyColor:'#c4c7cc',background:'#ffffff',grid:true,shadows:true,elevation:24,yaw:-20},
+    'ERP demo':{device:'laptop',finish:'gray',bodyColor:'#4f5560',background:'#142a3b',grid:true,shadows:false,elevation:18,yaw:-22}
   };
   for(const [name,preset] of Object.entries(expected)){
     const json=JSON.parse(await readFile(new URL(`../assets/${encodeURIComponent(name)}/demo.json`,import.meta.url),'utf8'));
@@ -38,12 +39,27 @@ test('each demo has its own presentation defaults',async()=>{
     assert.equal(settings[preset.device].finish,preset.finish,name);
     assert.equal(settings[preset.device].bodyColor,preset.bodyColor,name);
     assert.equal(settings.canvas.background,preset.background,name);
+    if(name==='ERP demo')assert.equal(settings.canvas.background,settings.laptop.screenColor,name);
     assert.equal(settings.canvas.grid,preset.grid,name);
     assert.equal(settings.canvas.shadows,preset.shadows,name);
     assert.equal(settings.scene.rotateX,preset.elevation,name);
     assert.equal(settings.scene.rotateY,preset.yaw,name);
     assert.equal(settings.scene.rotateZ,0,`${name}: zero initial camera roll`);
   }
+});
+
+test('ERP artwork is aligned, lightweight, self-contained and fictional',async()=>{
+  const folder=new URL('../assets/ERP%20demo/',import.meta.url);
+  const {files}=parseDemoConfig(JSON.parse(await readFile(new URL('demo.json',folder),'utf8')));
+  let bytes=0;
+  for(const file of Object.values(files)){
+    const svg=await readFile(new URL(encodeURIComponent(file),folder),'utf8');bytes+=Buffer.byteLength(svg);
+    assert.match(svg,/<svg[^>]+width="1920" height="1037" viewBox="0 0 1920 1037"/);
+    assert.match(svg,/<title>Ledger ERP:/);
+    assert.doesNotMatch(svg,/<(?:image|script|foreignObject)\b|@import|@font-face|\b(?:href|src)="(?!#)|url\((?!#)/i);
+    assert.match(svg,/<desc>[^<]+<\/desc>/);
+  }
+  assert.ok(bytes<30000,`ERP SVGs must remain compact; received ${bytes} bytes.`);
 });
 
 test('all configured visual fields have editor controls and only phase is internal',()=>{
@@ -63,8 +79,32 @@ test('all configured visual fields have editor controls and only phase is intern
 
 test('known numeric ranges, boolean types, colors, enums and unsafe fields are validated',()=>{
   const result=normalizeSettings(JSON.parse('{"device":"unknown","canvas":{"background":200,"grid":"false","shadows":false,"assetSet":"wrong"},"scene":{"scale":0,"perspective":1000,"rotateX":-20},"laptop":{"bodyColor":{"toString":"bad"},"screenColor":"url(bad)","finish":"unknown"},"animation":{"speed":0,"axis":"bad"},"layers":{"foreground":{"z":90,"opacity":-1}},"__proto__":{"polluted":true}}'));
-  assert.equal(result.device,'laptop');assert.equal(result.canvas.background,100);assert.equal(result.canvas.grid,true);assert.equal(result.canvas.shadows,false);assert.equal(result.scene.scale,.65);assert.equal(result.scene.perspective,60);assert.equal(result.scene.rotateX,0);assert.equal(result.animation.speed,3000);assert.equal(result.animation.axis,'y');assert.equal(result.layers.foreground.z,1.5);assert.equal(result.layers.foreground.opacity,0);assert.equal(result.laptop.bodyColor,'#4f5560');assert.equal(result.laptop.screenColor,'#e8f3f0');assert.equal(result.canvas.assetSet,undefined);assert.equal({}.polluted,undefined);
+  assert.equal(result.device,'laptop');assert.equal(result.canvas.background,'#000000');assert.equal(result.canvas.grid,true);assert.equal(result.canvas.shadows,false);assert.equal(result.scene.scale,.65);assert.equal(result.scene.perspective,60);assert.equal(result.scene.rotateX,0);assert.equal(result.animation.speed,3000);assert.equal(result.animation.axis,'y');assert.equal(result.layers.foreground.z,1.5);assert.equal(result.layers.foreground.opacity,0);assert.equal(result.laptop.bodyColor,'#4f5560');assert.equal(result.laptop.screenColor,'#e8f3f0');assert.equal(result.canvas.assetSet,undefined);assert.equal({}.polluted,undefined);
   assert.deepEqual(normalizeSettings({scene:{perspective:NaN},layers:{background:{scale:Infinity}}}),defaultSettings());
+});
+
+test('legacy grayscale backgrounds retain their exact rendered colors',()=>{
+  for(const [background,expected] of [[0,'#ffffff'],[25,'#bfbfbf'],[50,'#808080'],[75,'#404040'],[100,'#000000'],[-20,'#ffffff'],[140,'#000000']]){
+    const {settings}=parseDemoConfig({version:1,canvas:{background}});
+    assert.equal(settings.canvas.background,expected);
+    assert.deepEqual(normalizeSettings(settings),settings);
+  }
+});
+
+test('custom background colors round-trip through demo and clipboard configurations',()=>{
+  const {settings}=parseDemoConfig({version:1,canvas:{background:'#A1B2C3'}});
+  assert.equal(settings.canvas.background,'#a1b2c3');
+  const files=Object.fromEntries(layerOrder.map((key,index)=>[key,`${index}.svg`]));
+  const copied=demoConfigFromState(settings,files);
+  assert.equal(copied.canvas.background,'#a1b2c3');
+  assert.deepEqual(parseDemoConfig(JSON.parse(JSON.stringify(copied))).settings,settings);
+});
+
+test('invalid background colors cannot replace the demo defaults',()=>{
+  const base=defaultSettings();base.canvas.background='#142a3b';
+  for(const background of [null,true,NaN,Infinity,{},[],['#123456'],'50','#fff','#12345678','red','url(bad)','var(--color)']){
+    assert.equal(normalizeSettings({canvas:{background}},base).canvas.background,'#142a3b');
+  }
 });
 
 test('configuration versions and folder-local filenames are enforced',()=>{

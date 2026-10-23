@@ -16,7 +16,7 @@ export function isRecord(value) {
 
 export function defaultSettings() {
   return {
-    canvas:{grid:true,shadows:true,background:0,panelCollapsed:false,highQuality:false},
+    canvas:{grid:true,shadows:true,background:'#ffffff',panelCollapsed:false,highQuality:false},
     device:'laptop',
     scene:{perspective:38,rotateX:24,rotateY:-28,rotateZ:0,scale:1},
     laptop:{visible:true,x:0,y:0,z:0,scale:1,lidAngle:105,finish:'gray',bodyColor:'#4f5560',screenColor:'#e8f3f0'},
@@ -38,7 +38,10 @@ export function normalizeSettings(input,base=defaultSettings()) {
   if(isRecord(input.layers))for(const key of layerOrder)if(isRecord(input.layers[key]))for(const [field,,min,max] of controlSpecs.layer)number(input.layers[key],result.layers[key],field,min,max);
   if(isRecord(input.canvas)){
     for(const key of ['grid','shadows','panelCollapsed','highQuality'])boolean(input.canvas,result.canvas,key);
-    number(input.canvas,result.canvas,'background',0,100);
+    if(typeof input.canvas.background==='number'&&Number.isFinite(input.canvas.background)){
+      const shade=Math.round(255-Math.min(100,Math.max(0,input.canvas.background))*2.55);
+      result.canvas.background=`#${shade.toString(16).padStart(2,'0').repeat(3)}`;
+    }else color(input.canvas,result.canvas,'background');
   }
   for(const group of ['laptop','desktop'])if(isRecord(input[group])){
     const source=input[group],target=result[group];

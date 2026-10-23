@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1037" viewBox="0 0 1920 1037" fill="none">
+  <title>Ledger ERP: subsidiary net income and supporting evidence</title>
+  <desc>A horizontal bar chart compares six fictional subsidiaries. Their net incomes sum to 1,482,600 dollars. Five entities are profitable; Ventures R and D reports an 8,900 dollar loss.</desc>
+  <rect x="96" y="368" width="1120" height="484" rx="4" fill="#172e41" stroke="#344e60" stroke-width="1.5"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="120" y="403" font-size="23" font-weight="700" fill="#e2edf2">Net income by subsidiary</text>
+    <text x="1192" y="402" text-anchor="end" font-size="15" fill="#8fabbc">October 2026 / USD</text>
+    <circle cx="125" cy="427" r="4" fill="#66bcc0"/>
+    <text x="139" y="433" font-size="14" fill="#a1bbca">Net income</text>
+    <circle cx="272" cy="427" r="4" fill="#ed8c82"/>
+    <text x="286" y="433" font-size="14" fill="#a1bbca">Net loss</text>
+  </g>
+  <g stroke="#2c475a" stroke-width="1">
+    <path d="M372 444V704M636 444V704M812 444V704M988 444V704M1164 444V704"/>
+  </g>
+  <path d="M460 444V704" stroke="#58798d" stroke-width="1.5"/>
+  <g fill="#a9c0cf" font-family="Arial, Helvetica, sans-serif" font-size="17">
+    <text x="120" y="471">Meridian Manufacturing</text><text x="120" y="513">Cloudworks Services</text>
+    <text x="120" y="555">Harbor Distribution</text><text x="120" y="597">Meridian Operations</text>
+    <text x="120" y="639">Fieldstone Logistics</text><text x="120" y="681">Ventures R&amp;D</text>
+  </g>
+  <rect x="460" y="452" width="602.1" height="25" rx="2" fill="#59b7bb"/>
+  <rect x="460" y="494" width="345.7" height="25" rx="2" fill="#3f98a3"/>
+  <rect x="460" y="536" width="197.6" height="25" rx="2" fill="#358795"/>
+  <rect x="460" y="578" width="109.6" height="25" rx="2" fill="#307789"/>
+  <rect x="460" y="620" width="57.6" height="25" rx="2" fill="#3e7089"/>
+  <rect x="452.2" y="662" width="7.8" height="25" rx="1" fill="#ed8c82"/>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" text-anchor="end" fill="#d8e9f1">
+    <text x="1192" y="471">$684,200</text><text x="1192" y="513">$392,800</text>
+    <text x="1192" y="555">$224,600</text><text x="1192" y="597">$124,500</text>
+    <text x="1192" y="639">$65,400</text><text x="1192" y="681" fill="#f2a498">-$8,900</text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" fill="#88a5b8">
+    <text x="372" y="722">-100k</text><text x="460" y="722">0</text><text x="636" y="722">200k</text>
+    <text x="812" y="722">400k</text><text x="988" y="722">600k</text><text x="1164" y="722">800k</text>
+  </g>
+  <path d="M120 739H1192M120 774H1192M120 800H1192M120 826H1192" stroke="#324d60"/>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#91acbe">
+    <text x="120" y="762">SUPPORTING DETAIL</text><text x="650" y="762" text-anchor="end">THIS PERIOD</text>
+    <text x="862" y="762" text-anchor="end">PRIOR PERIOD</text><text x="1056" y="762" text-anchor="end">VARIANCE</text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#bed1dd">
+    <text x="120" y="793">Meridian Manufacturing</text><text x="120" y="819">Cloudworks Services</text><text x="120" y="845">Harbor Distribution</text>
+    <g text-anchor="end">
+      <text x="650" y="793">684,200</text><text x="650" y="819">392,800</text><text x="650" y="845">224,600</text>
+      <text x="862" y="793">602,000</text><text x="862" y="819">354,100</text><text x="862" y="845">209,400</text>
+      <g fill="#9bc9ae"><text x="1056" y="793">+13.7%</text><text x="1056" y="819">+10.9%</text><text x="1056" y="845">+7.3%</text></g>
+    </g>
+  </g>
+  <g stroke="#a0c8b1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M1137 788L1141 792 1148 783M1137 814L1141 818 1148 809M1137 840L1141 844 1148 835"/>
+  </g>
+</svg>
