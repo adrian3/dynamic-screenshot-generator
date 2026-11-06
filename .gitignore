@@ -10,3 +10,7 @@
 exports/
 tmp/
 *.tmp
+
+# Authorized real-app captures stay local unless explicitly approved for publishing.
+captures/private/
+assets/Private - */

@@ -29,6 +29,20 @@ The 3D editor remembers only the selected folder and animation under `living-scr
 
 The renderer uses studio environment lighting, metal/roughness materials, and contact shadows. SVG panels use unlit textures so their interface colors remain consistent. The original SVG files remain the editable source assets; rendering converts them to textures up to 1920 pixels wide, or 1280 on narrow screens.
 
+### Rendering Styles
+
+The appearance bar includes **Style: Original / Blueprint**. Blueprint uses the existing geometry with cached visible-edge linework, optional **Hidden edges**, and optional **Blueprint screens**. The Architecture demo starts in Blueprint; older configurations and all other built-in demos default to Original. Rendering style is independent of the selected animation and is included in copied scene JSON and PNG exports.
+
+`appearance` accepts `style` (`original` or `blueprint`), `blueprintScreens` (boolean), and `hiddenEdges` (boolean). Original canvas, shadow, device finish, and screen colors remain stored unchanged. Blueprint uses a fixed blue-paper/light-ink palette and disables shadows and finish controls while active; switching to Original restores those controls and their saved values. Inversion continues its camera route in Blueprint while the blueprint palette stays fixed. Fly In fades both the hardware surfaces and linework.
+
+Screen conversion is generated lazily from vector SVGs without modifying their source files. If any layer contains bitmap images or HTML content, the complete demo keeps its original screen artwork and the screen-conversion checkbox is unavailable. This keeps captured application content coherent rather than partially recoloring native chart elements over unmodified screenshots. Screenshot-layer planes are excluded from device outlines. Theme choices follow the same session-only policy as other appearance edits; only folder and animation selections are remembered between visits.
+
+### Blueprint Study
+
+The isolated [Blueprint study](blueprint-study.html) tests a whole-scene blueprint treatment using the existing laptop/desktop geometry and Architecture demo. It includes an Original/Blueprint comparison, optional dashed hidden edges, grid, layer depth, orbit, and phase-preserving play/pause. Device edge geometry is cached and repeated key outlines are batched. No additional library is required.
+
+The study remains a standalone comparison page. It does not read or change editor preferences, modify source artwork, or include private captures. Use the main editor for demo selection, all four animation presets, saved demo configuration, and PNG export.
+
 ### Control Coverage
 
 Roll is exposed as **Roll (Z)** in Scene Orientation and each layer, and as an axis option in Living Motion. Scene roll rotates the camera around its viewing axis; layer roll rotates that SVG around its local Z axis. The JSON key remains `rotateZ` for compatibility. Music and Architecture start at zero roll.
@@ -66,7 +80,7 @@ The built-in examples are `assets/Dashboard demo/`, `assets/Chess Demo/` (Eugene
 
 Each demo folder is self-contained: its four SVGs and `demo.json` define the full scene. The configuration includes grid, shadows, canvas background, drawer state, resolution, device selection, device positions, finishes, body/screen colors, camera orientation, animation, and each layer's filename, position, rotation, scale, and opacity. Each built-in example has its own presentation defaults and matching screen color:
 
-- Architecture: silver/white desktop, white background, no grid or shadow.
+- Architecture: Blueprint desktop, no grid or shadow; its Original settings remain silver/white with a white background.
 - Music: dark laptop, black background, no grid, low camera elevation (12 degrees).
 - Chess: dark desktop, black background, grid on.
 - Dashboard: silver/white laptop, white background, grid on.
@@ -114,6 +128,10 @@ Hosted pages, including GitHub Pages, show the built-in demo dropdown and hide C
 Local servers that expose directory listings can discover new folders automatically, including their JSON configurations. Choose Folder reads SVGs and `demo.json` from local directories in browsers supporting the [File System Access API](https://developer.chrome.com/docs/capabilities/web-apis/file-system-access). The API can also work on HTTPS-hosted sites with user permission; hiding it in the public demo is a UI choice, not a GitHub Pages limitation. Add published folder names to `assets/demos.json` to register new examples on GitHub Pages; no JavaScript edits or compilation are needed.
 
 The product-specific legacy SVG folders have been removed. The old photographic device assets remain available in the repository checkpoint and are not loaded by the 3D renderer.
+
+### Real Application Captures
+
+The optional [authorized Chrome capture workflow](tools/README.md) preserves actual browser-rendered pages as private, image-backed SVG demos. It saves display-sized captures, scrolling sources and fixed header/footer metadata without copying login credentials. Real-app files under `captures/private/` and `assets/Private - */` are git-ignored and are never registered in the public demo list. These local additions do not replace the fictional ERP or other public examples. Scrolling playback and automatic page transitions remain future renderer features.
 
 ## Files And Licenses
 

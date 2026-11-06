@@ -27,6 +27,9 @@
         </div>
       </div>
       <div class="canvas-controls">
+        <label class="style-control">Style<select id="renderStyle" aria-label="Rendering style"><option value="original">Original</option><option value="blueprint">Blueprint</option></select></label>
+        <label class="check-control" id="blueprintScreensControl" hidden><input type="checkbox" id="blueprintScreens" checked><span>Blueprint screens</span></label>
+        <label class="check-control" id="hiddenEdgesControl" hidden><input type="checkbox" id="hiddenEdges"><span>Hidden edges</span></label>
         <label class="check-control"><input type="checkbox" id="canvasGrid" checked><span>Grid</span></label>
         <label class="check-control"><input type="checkbox" id="canvasShadow" checked><span>Shadows</span></label>
         <label class="background-control">Background<input type="color" id="canvasBg" value="#ffffff" aria-label="Background color" title="Background color"></label>

@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "appearance": { "style": "blueprint", "blueprintScreens": true, "hiddenEdges": false },
   "canvas": { "grid": false, "shadows": false, "background": 0, "panelCollapsed": false, "highQuality": false },
   "device": "desktop",
   "scene": { "perspective": 34, "rotateX": 18, "rotateY": -28, "rotateZ": 0, "scale": 1.25 },

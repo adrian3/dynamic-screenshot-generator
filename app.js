@@ -8,6 +8,7 @@ import { layerOrder, layerNames, controlSpecs as specs, defaultSettings, normali
 import { CAMERA_DISTANCE, FLY_IN_DURATION, PRESET_TRANSITION_DURATION, transitionWeight, blendCameraPose, flyInPose, isCameraTour, cameraStartPose, sampleCameraPose, sampleFlyIn, sampleInversion, snapshotCamera, captureDemoConfig } from './camera-motion.js';
 import { loadPreferences, savePreferences, clearPreferences } from './editor-preferences.js';
 import { composePngFrame, encodePng, savePng } from './png-export.js';
+import { blueprintPalette, createBlueprintDevice, blueprintSvg, inspectSvg, renderAppearance } from './blueprint-theme.js';
 
 const isLocalHost=['localhost','127.0.0.1','[::1]'].includes(location.hostname)||location.hostname.endsWith('.localhost');
 const MIN_ELEVATION=0;
@@ -36,6 +37,10 @@ let preferences=loadPreferences();
 let activeSet=null;
 let activeLayerFiles={};
 let demoBaseSettings=null;
+let activeLayerAssets=[];
+let appearanceVersion=0;
+let assetsBusy=true;
+let blueprintThemes=null;
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function defaults() {
@@ -148,12 +153,26 @@ function renderControls() {
 }
 
 function syncControls() {
+  const appearance=effectiveAppearance();
   document.querySelectorAll('input[data-group]').forEach(input=>{input.value=target(input.dataset.group,input.dataset.path)[input.dataset.key];});
   document.getElementById('canvasGrid').checked=state.canvas.grid;
-  document.getElementById('canvasShadow').checked=state.canvas.shadows;
-  document.getElementById('canvasBg').value=state.canvas.background;
-  document.getElementById('bodyColor').value=state[state.device].bodyColor;
-  document.getElementById('screenColor').value=state.laptop.screenColor;
+  document.getElementById('canvasShadow').checked=appearance.shadows;
+  document.getElementById('canvasShadow').disabled=appearance.blueprint;
+  document.getElementById('canvasBg').value=appearance.background;
+  document.getElementById('canvasBg').disabled=appearance.blueprint;
+  document.getElementById('canvasBg').title=appearance.blueprint?'Blueprint paper color':'Background color';
+  document.getElementById('bodyColor').value=appearance.blueprint?blueprintPalette.paper:state[state.device].bodyColor;
+  document.getElementById('screenColor').value=appearance.screenColor;
+  document.getElementById('screenColor').disabled=appearance.convertScreens;
+  document.getElementById('renderStyle').value=state.appearance.style;
+  document.getElementById('blueprintScreensControl').hidden=!appearance.blueprint;
+  document.getElementById('hiddenEdgesControl').hidden=!appearance.blueprint;
+  const raster=activeLayerAssets.some(asset=>asset.raster);
+  document.getElementById('blueprintScreens').checked=state.appearance.blueprintScreens&&!raster;
+  document.getElementById('blueprintScreens').disabled=assetsBusy||raster||!appearance.blueprint;
+  document.getElementById('blueprintScreens').title=raster?'Captured image-based screens keep their original artwork':'Blueprint screen artwork';
+  document.getElementById('hiddenEdges').checked=state.appearance.hiddenEdges;
+  document.getElementById('hiddenEdges').disabled=assetsBusy||!appearance.blueprint;
   document.getElementById('deviceSelect').value=state.device;
   document.getElementById('deviceVisible').checked=state[state.device].visible;
   document.getElementById('laptopControls').hidden=state.device!=='laptop';
@@ -172,10 +191,10 @@ function syncControls() {
   const panel=document.getElementById('panelToggle');panel.replaceChildren(icon(state.canvas.panelCollapsed?'PanelRightOpen':'PanelRightClose'));
   panel.setAttribute('aria-expanded',!state.canvas.panelCollapsed);panel.title=state.canvas.panelCollapsed?'Expand controls':'Collapse controls';panel.setAttribute('aria-label',panel.title);
   const inverting=state.animation.preset==='inversion';
-  document.getElementById('bodyColor').disabled=inverting;
-  document.getElementById('bodyColor').title=inverting?'Body color follows Inversion':'Display body color';
+  document.getElementById('bodyColor').disabled=inverting||appearance.blueprint;
+  document.getElementById('bodyColor').title=appearance.blueprint?'Blueprint paper color':inverting?'Body color follows Inversion':'Display body color';
   document.querySelectorAll('[data-finish]').forEach(button=>{
-    button.disabled=inverting;button.setAttribute('aria-pressed',!inverting&&button.dataset.finish===state[state.device].finish);
+    button.disabled=inverting||appearance.blueprint;button.setAttribute('aria-pressed',!inverting&&!appearance.blueprint&&button.dataset.finish===state[state.device].finish);
   });
 }
 
@@ -186,24 +205,36 @@ function resize() {
   camera.aspect=width/height;camera.updateProjectionMatrix();needsRender=true;
 }
 
+function effectiveAppearance(){return renderAppearance(state,activeLayerAssets.some(asset=>asset.raster));}
+
 function applyState() {
+  // Update the original hardware first, then apply a reversible rendering treatment.
+  if(blueprintThemes)for(const theme of Object.values(blueprintThemes))theme.setEnabled(false);
+  const appearance=effectiveAppearance();
   document.getElementById('app').classList.toggle('panel-collapsed',state.canvas.panelCollapsed);
-  const background=new THREE.Color(state.canvas.background);
+  const background=new THREE.Color(appearance.background);
   const dark=.2126*background.r+.7152*background.g+.0722*background.b<.18;
-  root.style.setProperty('--canvas-color',state.canvas.background);root.style.setProperty('--canvas-ink',dark?'#e6edf1':'#20272d');
-  grid.visible=state.canvas.grid;grid.material.color.set(dark?'#687780':'#d0dadd');
-  if(renderer.shadowMap.enabled!==state.canvas.shadows){
-    renderer.shadowMap.enabled=state.canvas.shadows;
+  root.style.setProperty('--canvas-color',appearance.background);root.style.setProperty('--canvas-ink',dark?'#e6edf1':'#20272d');
+  grid.visible=state.canvas.grid;grid.material.color.set(appearance.blueprint?blueprintPalette.grid:dark?'#687780':'#d0dadd');grid.material.opacity=appearance.blueprint ? .16 : .26;
+  if(renderer.shadowMap.enabled!==appearance.shadows){
+    renderer.shadowMap.enabled=appearance.shadows;
     scene.traverse(object=>{for(const material of [object.material].flat().filter(Boolean))material.needsUpdate=true;});
   }
-  ground.visible=state.canvas.shadows;
+  ground.visible=appearance.shadows;
   laptop.update(state.laptop);
   desktop.update({...state.desktop,screenColor:state.laptop.screenColor});
+  if(appearance.blueprint&&!blueprintThemes)blueprintThemes=Object.fromEntries(Object.entries(devices).map(([key,device])=>[key,createBlueprintDevice(device.group,{exclude:layerMeshes})]));
+  if(blueprintThemes)for(const theme of Object.values(blueprintThemes)){
+    theme.setScreenBlueprint(appearance.convertScreens);theme.setEnabled(appearance.blueprint);theme.setHiddenEdges(state.appearance.hiddenEdges);
+  }
   if(presetTransition)for(const entry of presetTransition.materials)entry.targetColor.copy(entry.material.color);
   laptop.group.visible=state.device==='laptop';desktop.group.visible=state.device==='desktop';
   controls.target.set(0,state.device==='desktop'?1.25:1.05,.05);
   const screenAnchor=devices[state.device].screenAnchor;
   layerMeshes.forEach((mesh,index)=>{
+    const asset=activeLayerAssets[index];
+    const texture=asset&&(appearance.convertScreens?asset.blueprint?.texture:asset.original.texture)||asset?.original.texture;
+    if(texture&&mesh.material.map!==texture){mesh.material.map=texture;mesh.material.needsUpdate=true;}
     if(mesh.parent!==screenAnchor)screenAnchor.add(mesh);
     const values=state.layers[layerOrder[index]];
     mesh.position.set(values.x,values.y,.003+index*.0005+values.z*state.animation.depth);
@@ -211,7 +242,7 @@ function applyState() {
     mesh.scale.setScalar(values.scale);mesh.material.opacity=values.opacity/100;
   });
   camera.fov=state.scene.perspective;camera.updateProjectionMatrix();
-  syncControls();resize();renderer.shadowMap.needsUpdate=state.canvas.shadows;needsRender=true;
+  syncControls();resize();renderer.shadowMap.needsUpdate=appearance.shadows;needsRender=true;
   state.animation.time=elapsed;
 }
 
@@ -302,7 +333,7 @@ function applyInversion(yaw) {
   if(state.animation.preset!=='inversion')return;
   yaw??=THREE.MathUtils.radToDeg(Math.atan2(camera.position.x-controls.target.x,camera.position.z-controls.target.z));
   const color=devices[state.device].setFinishBlend(sampleInversion(yaw));
-  document.getElementById('bodyColor').value=`#${color.getHexString()}`;
+  if(!effectiveAppearance().blueprint)document.getElementById('bodyColor').value=`#${color.getHexString()}`;
 }
 
 function readCamera() {
@@ -390,12 +421,14 @@ function configuredLayers(set,files) {
 }
 
 function demoActionsEnabled(enabled) {
+  assetsBusy=!enabled;
   for(const id of ['copyDemo','resetDemo','openPng'])document.getElementById(id).disabled=!enabled;
+  document.getElementById('renderStyle').disabled=!enabled;
+  syncControls();
 }
 
-async function textureFromFile(file) {
-  const response=await fetch(file.url);if(!response.ok)throw new Error(`Could not load ${file.name}`);
-  const blob=await response.blob();
+async function svgTexture(source) {
+  const blob=new Blob([source],{type:'image/svg+xml'});
   const url=URL.createObjectURL(blob);const image=new Image();
   try {
     image.src=url;await image.decode();
@@ -408,9 +441,44 @@ async function textureFromFile(file) {
   } finally {URL.revokeObjectURL(url);}
 }
 
+async function textureFromFile(file){
+  const response=await fetch(file.url);if(!response.ok)throw new Error(`Could not load ${file.name}`);
+  const source=await response.text(),metadata=inspectSvg(source);
+  return {source,...metadata,original:await svgTexture(source),blueprint:null,pending:null,disposed:false};
+}
+
+function disposeAssets(assets){
+  for(const asset of assets){asset.disposed=true;asset.original.texture.dispose();asset.blueprint?.texture.dispose();}
+}
+
+async function prepareAppearance(assets,appearance){
+  if(appearance.style!=='blueprint'||!appearance.blueprintScreens||assets.some(asset=>asset.raster))return;
+  await Promise.all(assets.map(asset=>{
+    if(asset.blueprint)return;
+    if(!asset.pending)asset.pending=svgTexture(blueprintSvg(asset.source,{darkBackground:assets[0].darkBackground})).then(result=>{
+      if(asset.disposed)result.texture.dispose();else asset.blueprint=result;
+    }).finally(()=>{asset.pending=null;});
+    return asset.pending;
+  }));
+}
+
+async function changeAppearance(patch){
+  const assets=activeLayerAssets,version=++appearanceVersion,previous={...state.appearance};
+  Object.assign(state.appearance,patch);demoActionsEnabled(false);applyState();
+  try{
+    await prepareAppearance(assets,state.appearance);
+    if(version!==appearanceVersion||assets!==activeLayerAssets)return;
+    applyState();document.getElementById('assetStatus').textContent='';
+  }catch(error){
+    if(version!==appearanceVersion||assets!==activeLayerAssets)return;
+    state.appearance=previous;applyState();document.getElementById('assetStatus').textContent=`Could not apply style: ${error.message}`;
+  }finally{if(version===appearanceVersion&&assets===activeLayerAssets)demoActionsEnabled(Boolean(activeSet));}
+}
+
 async function loadAssetSet(name,{persist=true,restore=false}={}) {
   const set=assetSets.find(set=>set.name===name);if(!set)return;
   const version=++assetVersion;
+  appearanceVersion++;
   demoActionsEnabled(false);
   document.getElementById('assetStatus').textContent='Loading demo';
   const config=await configurationFor(set);
@@ -422,10 +490,17 @@ async function loadAssetSet(name,{persist=true,restore=false}={}) {
   const results=await Promise.allSettled(layers.map(textureFromFile));
   const loaded=results.filter(result=>result.status==='fulfilled').map(result=>result.value);
   if(version!==assetVersion||loaded.length!==4){
-    loaded.forEach(({texture})=>texture.dispose());
+    disposeAssets(loaded);
     if(version===assetVersion){document.getElementById('assetStatus').textContent='Could not load all four SVG layers.';document.getElementById('assetSetSelect').value=state.canvas.assetSet;demoActionsEnabled(Boolean(activeSet));}
     return;
   }
+  try{await prepareAppearance(loaded,config.settings.appearance);}
+  catch(error){
+    disposeAssets(loaded);
+    if(version===assetVersion){document.getElementById('assetStatus').textContent=`Could not prepare style: ${error.message}`;demoActionsEnabled(Boolean(activeSet));}
+    return;
+  }
+  if(version!==assetVersion){disposeAssets(loaded);return;}
   // Commit settings and textures together, so a slow demo cannot replace a newer one.
   const playback=activeSet&&!restore?{animation:structuredClone(state.animation),elapsed,entranceElapsed}:null;
   const from=playback&&state.animation.enabled&&!reducedMotion?capturePresetTransition():null;
@@ -438,9 +513,10 @@ async function loadAssetSet(name,{persist=true,restore=false}={}) {
     state.animation.time=elapsed;
   }
   activeLayerFiles=Object.fromEntries(layers.map(layer=>[layer.key,layer.name]));
+  disposeAssets(activeLayerAssets);activeLayerAssets=loaded;
   results.forEach((result,index)=>{
-    const {texture,ratio}=result.value;
-    const mesh=layerMeshes[index];mesh.material.map?.dispose();mesh.geometry.dispose();
+    const {texture,ratio}=result.value.original;
+    const mesh=layerMeshes[index];mesh.geometry.dispose();
     mesh.geometry=new THREE.PlaneGeometry(SCREEN_WIDTH,SCREEN_WIDTH*ratio);mesh.material.map=texture;mesh.material.needsUpdate=true;mesh.visible=true;
   });
   applyState();
@@ -521,6 +597,9 @@ document.getElementById('animationAxis').addEventListener('change',event=>{state
 document.getElementById('canvasGrid').addEventListener('change',event=>{state.canvas.grid=event.target.checked;applyState();});
 document.getElementById('canvasShadow').addEventListener('change',event=>{state.canvas.shadows=event.target.checked;applyState();});
 document.getElementById('canvasBg').addEventListener('input',event=>{state.canvas.background=event.target.value;applyState();});
+document.getElementById('renderStyle').addEventListener('change',event=>changeAppearance({style:event.target.value}));
+document.getElementById('blueprintScreens').addEventListener('change',event=>changeAppearance({blueprintScreens:event.target.checked}));
+document.getElementById('hiddenEdges').addEventListener('change',event=>changeAppearance({hiddenEdges:event.target.checked}));
 document.getElementById('screenColor').addEventListener('input',event=>{
   state.laptop.screenColor=event.target.value;
   applyState();
@@ -573,7 +652,7 @@ document.getElementById('openPng').addEventListener('click',()=>{
     if(renderer.getContext().isContextLost())throw new Error('The 3D session was interrupted. Reload before exporting.');
     renderCurrentFrame();
     // Copy immediately after rendering; WebGL may discard its buffer before PNG encoding.
-    pngFrame=composePngFrame(renderer.domElement,{transparent:true});pngBackground=state.canvas.background;
+    pngFrame=composePngFrame(renderer.domElement,{transparent:true});pngBackground=effectiveAppearance().background;
     pngFilename=state.canvas.assetSet.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'living-screenshots';
     document.getElementById('pngSize').textContent=`${pngFrame.width} x ${pngFrame.height} px`;
     updatePngPreview();
@@ -645,10 +724,11 @@ function renderCurrentFrame() {
   if(presetTransition)for(const entry of presetTransition.materials)entry.material.color.copy(entry.targetColor);
   applyEntrance();applyInversion(presetTransition?.cameraActive?pose.rotateY:undefined);
   if(presetTransition)blendAppearance(weight);
-  if(state.animation.preset==='inversion'&&presetTransition){
+  if(state.animation.preset==='inversion'&&presetTransition&&!effectiveAppearance().blueprint){
     const body=devices[state.device].group.getObjectByName(state.device==='laptop'?'Chassis':'Desktop shell');
     document.getElementById('bodyColor').value=`#${[body.material].flat()[0].color.getHexString()}`;
   }
+  if(effectiveAppearance().blueprint&&blueprintThemes)for(const theme of Object.values(blueprintThemes))theme.syncOpacity();
   renderer.render(scene,camera);needsRender=false;
   if(presetTransition?.time===PRESET_TRANSITION_DURATION)presetTransition=null;
 }

@@ -1,6 +1,7 @@
 export const layerOrder=['background','middleground','middleForeground','foreground'];
 export const layerNames=['Background','Middle Ground','Middle Foreground','Foreground'];
 export const animationPresets=['sway','tour','fly-in','inversion'];
+export const renderingStyles=['original','blueprint'];
 
 export const controlSpecs={
   scene:[['perspective','Perspective',25,60,1],['rotateX','Rotate X',0,70,1],['rotateY','Rotate Y',-90,90,1],['rotateZ','Roll (Z)',-20,20,1],['scale','Scale',.65,1.65,.01]],
@@ -17,6 +18,7 @@ export function isRecord(value) {
 export function defaultSettings() {
   return {
     canvas:{grid:true,shadows:true,background:'#ffffff',panelCollapsed:false,highQuality:false},
+    appearance:{style:'original',blueprintScreens:true,hiddenEdges:false},
     device:'laptop',
     scene:{perspective:38,rotateX:24,rotateY:-28,rotateZ:0,scale:1},
     laptop:{visible:true,x:0,y:0,z:0,scale:1,lidAngle:105,finish:'gray',bodyColor:'#4f5560',screenColor:'#e8f3f0'},
@@ -42,6 +44,10 @@ export function normalizeSettings(input,base=defaultSettings()) {
       const shade=Math.round(255-Math.min(100,Math.max(0,input.canvas.background))*2.55);
       result.canvas.background=`#${shade.toString(16).padStart(2,'0').repeat(3)}`;
     }else color(input.canvas,result.canvas,'background');
+  }
+  if(isRecord(input.appearance)){
+    choice(input.appearance,result.appearance,'style',renderingStyles);
+    for(const key of ['blueprintScreens','hiddenEdges'])boolean(input.appearance,result.appearance,key);
   }
   for(const group of ['laptop','desktop'])if(isRecord(input[group])){
     const source=input[group],target=result[group];

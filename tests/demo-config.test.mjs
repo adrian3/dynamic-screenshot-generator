@@ -45,6 +45,7 @@ test('each demo has its own presentation defaults',async()=>{
     assert.equal(settings.scene.rotateX,preset.elevation,name);
     assert.equal(settings.scene.rotateY,preset.yaw,name);
     assert.equal(settings.scene.rotateZ,0,`${name}: zero initial camera roll`);
+    assert.equal(settings.appearance.style,name==='Architecture demo'?'blueprint':'original',`${name}: rendering style`);
   }
 });
 
@@ -71,7 +72,8 @@ test('all configured visual fields have editor controls and only phase is intern
   const manual=[
     'canvas.grid','canvas.shadows','canvas.background','canvas.panelCollapsed','canvas.highQuality','device',
     'laptop.visible','laptop.finish','laptop.bodyColor','laptop.screenColor',
-    'desktop.visible','desktop.finish','desktop.bodyColor','animation.enabled','animation.axis','animation.preset'
+    'desktop.visible','desktop.finish','desktop.bodyColor','animation.enabled','animation.axis','animation.preset',
+    'appearance.style','appearance.blueprintScreens','appearance.hiddenEdges'
   ];
   assert.deepEqual([...numeric,...manual,'animation.time'].sort(),paths(defaultSettings()).sort());
   for(const group of ['scene','layer'])assert.equal(controlSpecs[group].find(([key])=>key==='rotateZ')[1],'Roll (Z)');
@@ -131,6 +133,15 @@ test('partial configurations keep Sway and animation fields round-trip in JSON',
   assert.equal(normalizeSettings({animation:{preset:'fly-in'}}).animation.preset,'fly-in');
   assert.equal(normalizeSettings({animation:{preset:'inversion'}}).animation.preset,'inversion');
   assert.deepEqual(normalizeSettings(tour),tour);
+});
+
+test('rendering style is backward compatible, validated and independent of original appearance',()=>{
+  assert.deepEqual(parseDemoConfig({version:1}).settings.appearance,{style:'original',blueprintScreens:true,hiddenEdges:false});
+  const state=normalizeSettings({appearance:{style:'blueprint',blueprintScreens:false,hiddenEdges:true},canvas:{background:'#ff2244',shadows:true},laptop:{bodyColor:'#123456',screenColor:'#aabbcc'}});
+  assert.deepEqual(state.appearance,{style:'blueprint',blueprintScreens:false,hiddenEdges:true});
+  assert.equal(state.canvas.background,'#ff2244');assert.equal(state.canvas.shadows,true);assert.equal(state.laptop.bodyColor,'#123456');assert.equal(state.laptop.screenColor,'#aabbcc');
+  const config=demoConfigFromState(state,{});assert.deepEqual(parseDemoConfig(JSON.parse(JSON.stringify(config))).settings,state);
+  assert.deepEqual(normalizeSettings({appearance:{style:'bad',blueprintScreens:'false',hiddenEdges:1}}).appearance,defaultSettings().appearance);
 });
 
 test('reduced motion applies to presets without preventing explicit local play',()=>{
