@@ -93,3 +93,11 @@ dialog .reset-button { margin-top:25px; width:100%; color:#a64d41; }
 @media(max-width:640px) { .topbar { padding:0 14px; }.preview-area { padding:12px 14px; }.canvas-controls { padding:14px 16px; gap:8px 18px; }.title { gap:6px; }.top-actions { gap:6px; }.icon-button { width:32px; height:32px; }.panel-inner { padding:14px; } }
 @media(max-width:440px) { .workspace { grid-template-rows:100px minmax(0,1fr) auto; }.topbar { flex-wrap:wrap; align-content:center; gap:8px; }.title { width:100%; }.top-actions { margin-left:auto; } }
 @media(prefers-reduced-motion:reduce) { * { scroll-behavior:auto; } }
+
+/* Keep the folder and playback controls available while the editor is hidden. */
+.top-folder { flex:1; min-width:0; max-width:340px; margin-left:auto; }
+.top-folder select { text-overflow:ellipsis; }
+select { appearance:none; padding-right:32px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2320272d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; }
+.style-control select { padding-right:30px; }
+.top-actions { flex:none; }
+@media(max-width:800px) { .workspace { grid-template-rows:108px minmax(0,1fr) auto; }.topbar { flex-wrap:wrap; align-content:center; gap:8px 12px; }.title { width:100%; }.top-folder { margin-left:0; max-width:none; }.top-actions { margin-left:auto; } }

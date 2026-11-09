@@ -17,7 +17,7 @@ export function isRecord(value) {
 
 export function defaultSettings() {
   return {
-    canvas:{grid:true,shadows:true,background:'#ffffff',panelCollapsed:false,highQuality:false},
+    canvas:{grid:true,shadows:true,background:'#ffffff',panelCollapsed:true,highQuality:true},
     appearance:{style:'original',blueprintScreens:true,hiddenEdges:false},
     device:'laptop',
     scene:{perspective:38,rotateX:24,rotateY:-28,rotateZ:0,scale:1},

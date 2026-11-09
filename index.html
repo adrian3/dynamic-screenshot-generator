@@ -4,21 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <title>Living screenshots</title>
+  <title>Dynamic Screenshot Generator</title>
   <link rel="stylesheet" href="style.css">
   <script type="importmap">{"imports":{"three":"./vendor/three/three.module.js"}}</script>
 </head>
 <body>
-  <main class="app" id="app">
+  <main class="app panel-collapsed" id="app">
     <section class="workspace">
       <header class="topbar">
-        <div class="title"><span class="mark" data-icon="Layers"></span><h1>Living screenshots</h1></div>
+        <div class="title"><h1>Dynamic Screenshot Generator</h1></div>
+        <div class="top-folder"><label class="sr-only" for="assetSetSelect">Demo</label><select id="assetSetSelect"><option>Dashboard demo</option><option>Chess Demo</option></select></div>
         <div class="top-actions">
-          <button class="icon-button" id="resetAll" aria-label="Reset app" title="Reset app and clear saved settings" data-icon="RotateCcw"></button>
+          <button class="icon-button" id="topAnimationToggle" aria-label="Pause animation" title="Pause animation" aria-pressed="true" data-icon="Pause"></button>
           <button class="icon-button" id="resetView" aria-label="Reset camera" title="Reset camera" data-icon="Camera"></button>
           <button class="icon-button" id="openPng" aria-label="Download PNG" title="Download PNG" aria-haspopup="dialog" aria-controls="pngModal" data-icon="Download" disabled></button>
           <button class="icon-button" id="openSettings" aria-label="Settings" title="Settings" data-icon="Settings"></button>
-          <button class="icon-button" id="panelToggle" aria-label="Collapse controls" title="Collapse controls" aria-expanded="true" data-icon="PanelRightClose"></button>
+          <button class="icon-button" id="panelToggle" aria-label="Expand controls" title="Expand controls" aria-expanded="false" data-icon="PanelRightOpen"></button>
         </div>
       </header>
       <div class="preview-area">
@@ -27,6 +28,7 @@
         </div>
       </div>
       <div class="canvas-controls">
+        <label class="style-control">Animation<select id="animationPreset"><option value="sway">Sway</option><option value="tour">Camera Tour</option><option value="fly-in">Fly In</option><option value="inversion">Inversion</option></select></label>
         <label class="style-control">Style<select id="renderStyle" aria-label="Rendering style"><option value="original">Original</option><option value="blueprint">Blueprint</option></select></label>
         <label class="check-control" id="blueprintScreensControl" hidden><input type="checkbox" id="blueprintScreens" checked><span>Blueprint screens</span></label>
         <label class="check-control" id="hiddenEdgesControl" hidden><input type="checkbox" id="hiddenEdges"><span>Hidden edges</span></label>
@@ -39,17 +41,15 @@
     </section>
     <aside class="panel" id="panel" aria-label="Scene controls">
       <div class="panel-inner">
+        <details class="section"><summary>Display</summary><div class="section-body"><div class="select-row"><label for="deviceSelect">Model</label><select id="deviceSelect"><option value="laptop">Laptop</option><option value="desktop">Desktop</option></select></div><label class="check-control"><input type="checkbox" id="deviceVisible" checked>Visible</label><div id="laptopControls" class="device-controls"></div><div id="desktopControls" class="device-controls" hidden></div></div></details>
+        <details class="section"><summary>Scene Orientation</summary><div class="section-body" id="sceneControls"></div></details>
+        <details class="section"><summary>Living Motion</summary><div class="section-body"><div class="select-row"><span>Animation</span><div class="playback-actions"><button class="command-button play-button" id="animationToggle" aria-label="Pause animation" aria-pressed="true"><span data-icon="Pause"></span><span id="animationLabel">Pause</span></button><button class="icon-button" id="replayEntrance" aria-label="Replay entrance" title="Replay entrance" data-icon="RotateCcw" hidden></button></div></div><div class="select-row" id="swayAxisRow"><label for="animationAxis">Axis</label><select id="animationAxis"><option value="y">Y pivot</option><option value="x">X pivot</option><option value="z">Roll (Z)</option></select></div><div id="animationControls"></div></div></details>
+        <div id="layerControls"></div>
         <section class="section asset-section">
-          <div class="section-heading"><span>Assets</span><div class="demo-actions"><button id="copyDemo" class="icon-button" data-icon="Copy" aria-label="Copy scene JSON" title="Copy scene JSON" disabled></button><button id="resetDemo" class="icon-button" data-icon="RotateCcw" aria-label="Restore demo defaults" title="Restore this demo's JSON defaults" disabled></button></div><span id="copyStatus" class="sr-only" role="status"></span></div>
-          <div class="select-row"><label for="assetSetSelect">Demo</label><select id="assetSetSelect"><option>Dashboard demo</option><option>Chess Demo</option></select></div>
-          <div class="select-row"><label for="animationPreset">Animation</label><select id="animationPreset"><option value="sway">Sway</option><option value="tour">Camera Tour</option><option value="fly-in">Fly In</option><option value="inversion">Inversion</option></select></div>
+          <div class="section-heading"><span>Load Assets</span><div class="demo-actions"><button id="copyDemo" class="icon-button" data-icon="Copy" aria-label="Copy scene JSON" title="Copy scene JSON" disabled></button><button id="resetDemo" class="icon-button" data-icon="RotateCcw" aria-label="Restore demo defaults" title="Restore this demo's JSON defaults" disabled></button></div><span id="copyStatus" class="sr-only" role="status"></span></div>
           <div class="asset-actions" id="localAssetActions" hidden><button id="chooseAssetsFolder" class="command-button"><span data-icon="FolderOpen"></span>Choose Folder</button><button id="rescanAssetsFolder" class="icon-button" data-icon="RefreshCw" aria-label="Rescan folders" title="Rescan folders"></button></div>
           <p class="asset-status" id="assetStatus" role="status"></p>
         </section>
-        <details class="section" open><summary>Scene Orientation</summary><div class="section-body" id="sceneControls"></div></details>
-        <details class="section" open><summary>Display</summary><div class="section-body"><div class="select-row"><label for="deviceSelect">Model</label><select id="deviceSelect"><option value="laptop">Laptop</option><option value="desktop">Desktop</option></select></div><label class="check-control"><input type="checkbox" id="deviceVisible" checked>Visible</label><div id="laptopControls" class="device-controls"></div><div id="desktopControls" class="device-controls" hidden></div></div></details>
-        <details class="section" open><summary>Living Motion</summary><div class="section-body"><div class="select-row"><span>Animation</span><div class="playback-actions"><button class="command-button play-button" id="animationToggle" aria-label="Pause animation" aria-pressed="true"><span data-icon="Pause"></span><span id="animationLabel">Pause</span></button><button class="icon-button" id="replayEntrance" aria-label="Replay entrance" title="Replay entrance" data-icon="RotateCcw" hidden></button></div></div><div class="select-row" id="swayAxisRow"><label for="animationAxis">Axis</label><select id="animationAxis"><option value="y">Y pivot</option><option value="x">X pivot</option><option value="z">Roll (Z)</option></select></div><div id="animationControls"></div></div></details>
-        <div id="layerControls"></div>
       </div>
     </aside>
   </main>

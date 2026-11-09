@@ -148,7 +148,7 @@ The optional [authorized Chrome capture workflow](tools/README.md) preserves act
 - `icons.js`: selected Lucide icons; ISC license in `vendor/LUCIDE-LICENSE`.
 - `vendor/three/`: pinned Three.js 0.186.1 and required addons; MIT license included.
 
-High resolution in Settings allows a device pixel ratio up to 2 instead of 1.5. Mobile layouts reduce the screenshot texture size. Paused scenes render only when controls or the viewport change.
+High resolution is enabled by default for the app and built-in demos, allowing a device pixel ratio up to 2. Turning it off in Settings caps the ratio at 1.5 to reduce GPU work. Mobile layouts reduce the screenshot texture size. Paused scenes render only when controls or the viewport change.
 
 ## Tests
 

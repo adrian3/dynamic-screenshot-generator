@@ -186,6 +186,8 @@ function syncControls() {
   const playing=state.animation.enabled;
   const play=document.getElementById('animationToggle');play.querySelector('[data-icon]').replaceChildren(icon(playing?'Pause':'Play'));
   document.getElementById('animationLabel').textContent=playing?'Pause':'Play';
+  const topPlay=document.getElementById('topAnimationToggle');topPlay.replaceChildren(icon(playing?'Pause':'Play'));
+  topPlay.setAttribute('aria-pressed',playing);topPlay.title=playing?'Pause animation':'Play animation';topPlay.setAttribute('aria-label',topPlay.title);
   play.setAttribute('aria-pressed',playing);play.setAttribute('aria-label',playing?'Pause animation':'Play animation');
   document.getElementById('replayEntrance').hidden=!fly;
   const panel=document.getElementById('panelToggle');panel.replaceChildren(icon(state.canvas.panelCollapsed?'PanelRightOpen':'PanelRightClose'));
@@ -506,6 +508,7 @@ async function loadAssetSet(name,{persist=true,restore=false}={}) {
   const from=playback&&state.animation.enabled&&!reducedMotion?capturePresetTransition():null;
   demoBaseSettings=normalizeSettings(config.settings);
   state=structuredClone(demoBaseSettings);state.canvas.assetSet=name;
+  if(!activeSet)state.canvas.panelCollapsed=true;
   const preset=playback?playback.animation.preset:restore?state.animation.preset:preferences.animationPreset||state.animation.preset;
   startAnimation(preset,{fromDemo:preset===demoBaseSettings.animation.preset});activeSet=set;
   if(playback){
@@ -578,7 +581,7 @@ document.getElementById('chooseAssetsFolder').addEventListener('click',async()=>
   try{folderHandle=await window.showDirectoryPicker({mode:'read'});await scanLocal(folderHandle);}catch(error){if(error.name!=='AbortError')document.getElementById('assetStatus').textContent='Could not read that folder.';}
 });
 document.getElementById('rescanAssetsFolder').addEventListener('click',async()=>{if(folderHandle)await scanLocal(folderHandle);else {await scanServer();await loadAssetSet(state.canvas.assetSet);}});
-document.getElementById('animationToggle').addEventListener('click',()=>{
+for(const id of ['animationToggle','topAnimationToggle'])document.getElementById(id).addEventListener('click',()=>{
   state.animation.enabled=!state.animation.enabled;
   applyState();
 });
@@ -709,7 +712,7 @@ async function resetApp() {
   await loadAssetSet(state.canvas.assetSet,{persist:false});
   previousUrls.forEach(url=>URL.revokeObjectURL(url));
 }
-for(const id of ['resetAll','resetApp'])document.getElementById(id).addEventListener('click',resetApp);
+document.getElementById('resetApp').addEventListener('click',resetApp);
 
 new ResizeObserver(resize).observe(viewport);
 renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();renderStatus.hidden=false;renderStatus.textContent='The 3D session was interrupted. Reload to continue.';renderStatus.classList.add('error');});

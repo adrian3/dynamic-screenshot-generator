@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "canvas": { "grid": true, "shadows": true, "background": 100, "panelCollapsed": false, "highQuality": false },
+  "canvas": { "grid": true, "shadows": true, "background": 100, "panelCollapsed": true, "highQuality": true },
   "device": "desktop",
   "scene": { "perspective": 34, "rotateX": 18, "rotateY": -20, "rotateZ": 0, "scale": 1.3 },
   "laptop": { "visible": true, "x": 0, "y": 0, "z": 0, "scale": 1, "lidAngle": 105, "finish": "gray", "bodyColor": "#4f5560", "screenColor": "#19272b" },
